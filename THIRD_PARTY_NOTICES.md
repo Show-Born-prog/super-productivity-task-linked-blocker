@@ -26,8 +26,8 @@ embedded in the plugin HTML, and the Chrome icons retain their own notice.
 Keep these notices when redistributing those materials.
 
 The .NET/ASP.NET Core runtime and Node.js are prerequisites, not bundled copies.
-No Umbra source code is included. The README references other projects as
-examples; their code, text and logos have not been copied into it.
+The README's example registrations are fictional. Reference projects' README
+text, code and logos have not been copied into it.
 
 The license for this project's original code is a separate decision; see the
 [proposed MIT license](docs/LICENSE-MIT.proposed.txt). That proposal does not
