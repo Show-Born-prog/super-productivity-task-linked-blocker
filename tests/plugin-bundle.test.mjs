@@ -52,6 +52,7 @@ test('packaged plugin initializes, receives actual API-shaped hooks, exposes Jap
  await onReady();let state=await onMessage({type:'status'});assert.equal(state.status,'unknown');assert.equal(sharingConflict,true);
  assert.equal(header.label,'タスク連動ブロッカー');assert.equal(header.icon,'block');
  assert.equal(await onMessage({type:'locale'}),'ja');assert.equal(state.locale,'ja');
+ await hooks.get('languageChange')({newLanguage:'en'});assert.equal((await onMessage({type:'status'})).status,'unknown');assert.equal(intervals.size,0,'language changes must not start tracking or background timers');
  await onMessage({type:'save',rules:[{tagId:'fixture-tag',domains:['youtube.com'],allowSitesEnabled:true,allowedDomains:['music.youtube.com']}]});
  await hooks.get('currentTaskChange')({current:{id:'fixture-task',tagIds:['fixture-tag']},previous:null});
  state=await onMessage({type:'status'});assert.equal(state.status,'tracking');assert.deepEqual(Array.from(state.domains),['youtube.com']);

@@ -7,6 +7,7 @@ test('plugin and Chrome distribute matching three-language catalogs without new 
   const source=JSON.parse(await readFile(`locales/${locale}.json`,'utf8'));assert.deepEqual(embedded[locale],source);
   const host=locale==='zh-TW'?'zh-tw':locale;assert.ok(plugin.assets.includes(`i18n/${host}.json`));const native=JSON.parse(await readFile(`dist/plugin/i18n/${host}.json`,'utf8'));assert.equal(native.PLUGIN.NAME,source['product.name']);assert.equal(native.PLUGIN.DESCRIPTION,source['product.description']);
   const chrome=JSON.parse(await readFile(`dist/extension/_locales/${locale==='zh-TW'?'zh_TW':locale}/messages.json`,'utf8'));assert.equal(chrome.product_name.message,source['product.name']);assert.equal(chrome.extension_taskRunning.message,source['extension.taskRunning']);assert.equal(chrome.extension_settingsHint.placeholders.name.content,'$1');
+  if(locale==='zh-TW'){assert.equal(chrome.product_name.message,'工作連動封鎖工具');assert.equal(chrome.extension_taskRunning.message,'工作進行中');}
  }
  assert.match(await readFile('dist/extension/blocked.html','utf8'),/<h1 data-i18n="extension.taskRunning">Task in progress<\/h1>/);
 });

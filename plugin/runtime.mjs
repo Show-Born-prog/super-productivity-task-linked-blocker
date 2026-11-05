@@ -1,6 +1,8 @@
 const api = PluginAPI;
 const currentLocale=()=>{try{return api.getCurrentLanguage?.()||'en';}catch{return 'en';}};
+const productLabel=()=>{try{const value=api.translate?.('PLUGIN.NAME');return value&&value!=='PLUGIN.NAME'?value:BUILD_CONFIG.name;}catch{return BUILD_CONFIG.name;}};
 const removeNavigationAppearance=typeof document==='undefined'?()=>{}:installNavigationAppearance(document);
+const navigationLocalization=installNavigationLocalization(typeof document==='undefined'?undefined:document,productLabel);
 const transport = createTransport(api, BUILD_CONFIG);
 const controller = createController({ api, transport, sessionId: crypto.randomUUID() });
 let timer;
@@ -30,8 +32,8 @@ async function dispatch(operation) {
 api.registerHook('currentTaskChange', p => dispatch(() => controller.currentTaskChange(p)));
 api.registerHook('taskUpdate', p => dispatch(() => controller.taskUpdate(p)));
 api.registerHook('action', p => dispatch(() => controller.action(p)));
-const translatedName=api.translate?.('PLUGIN.NAME');
-api.registerHeaderButton({ label: translatedName&&translatedName!=='PLUGIN.NAME'?translatedName:BUILD_CONFIG.name, icon: 'block', onClick: () => api.showIndexHtmlAsView() });
+api.registerHook('languageChange',()=>navigationLocalization.refresh());
+api.registerHeaderButton({ label: productLabel(), icon: 'block', onClick: () => api.showIndexHtmlAsView() });
 api.registerConfigHandler(() => api.showIndexHtmlAsView());
 api.onMessage(async message => {
   if (message?.type === 'locale') return currentLocale();
@@ -47,10 +49,12 @@ api.onReady(async () => {
   try { await controller.initialize(); } catch { }
   if (unloaded) return;
   ready = true;
+  navigationLocalization.refresh();
   await synchronize();
 });
 api.onUnload(() => {
   removeNavigationAppearance();
+  navigationLocalization.dispose();
   unloaded = true;
   clearInterval(timer); clearInterval(refreshTimer); ready = false;
   void controller.close().catch(() => {});

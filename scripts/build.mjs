@@ -27,7 +27,7 @@ catch {
 const extensionId = [...createHash('sha256').update(Buffer.from(key, 'base64')).digest().subarray(0, 16)]
   .flatMap(n => [n >> 4, n & 15]).map(n => String.fromCharCode(97 + n)).join('');
 const config = { directory: path.join(root, '.local/runtime'), executable: path.join(dist, 'bridge/FocusGuard.Bridge.exe'), extensionId, name: productName };
-const runtimeModules = ['shared/policy.mjs', 'plugin/controller.mjs', 'plugin/transport.mjs', 'plugin/navigation-appearance.mjs', 'plugin/runtime.mjs'];
+const runtimeModules = ['shared/policy.mjs', 'plugin/controller.mjs', 'plugin/transport.mjs', 'plugin/navigation-appearance.mjs', 'plugin/navigation-localization.mjs', 'plugin/runtime.mjs'];
 let code = `(() => { 'use strict';\nconst BUILD_CONFIG = ${JSON.stringify(config)};\n`;
 for (const file of runtimeModules) code += await readBundledSource(file) + '\n';
 code += '})();\n';
@@ -47,7 +47,7 @@ await cp(path.join(root,'assets/icon.svg'),path.join(dist,'plugin/icon.svg'));
 await cp(path.join(root,'assets/NOTICE.txt'),path.join(dist,'plugin/NOTICE.txt'));
 const manifest = { id: 'super-focus-guard', name: productName, version, manifestVersion: 1, minSupVersion: '19.2.0',
   description: messages.en['product.description'],
-  iFrame: true, uiKit: false, hooks: ['currentTaskChange','taskUpdate','action'],
+  iFrame: true, uiKit: false, hooks: ['currentTaskChange','taskUpdate','action','languageChange'],
   permissions: ['getTasks','getAllTags','nodeExecution'], author: 'Focus Tools', icon: 'icon.svg', i18n:{languages:['en','ja','zh-tw']}, assets: ['index.html','icon.svg','NOTICE.txt','i18n/en.json','i18n/ja.json','i18n/zh-tw.json'] };
 await mkdir(path.join(dist,'plugin/i18n'),{recursive:true});
 for(const locale of manifest.i18n.languages){const catalog=messages[locale==='zh-tw'?'zh-TW':locale];await writeFile(path.join(dist,'plugin/i18n',locale+'.json'),JSON.stringify({PLUGIN:{NAME:catalog['product.name'],DESCRIPTION:catalog['product.description']}}));}
