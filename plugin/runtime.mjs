@@ -1,4 +1,5 @@
 const api = PluginAPI;
+const currentLocale=()=>{try{return api.getCurrentLanguage?.()||'en';}catch{return 'en';}};
 const removeNavigationAppearance=typeof document==='undefined'?()=>{}:installNavigationAppearance(document);
 const transport = createTransport(api, BUILD_CONFIG);
 const controller = createController({ api, transport, sessionId: crypto.randomUUID() });
@@ -29,16 +30,18 @@ async function dispatch(operation) {
 api.registerHook('currentTaskChange', p => dispatch(() => controller.currentTaskChange(p)));
 api.registerHook('taskUpdate', p => dispatch(() => controller.taskUpdate(p)));
 api.registerHook('action', p => dispatch(() => controller.action(p)));
-api.registerHeaderButton({ label: BUILD_CONFIG.name, icon: 'block', onClick: () => api.showIndexHtmlAsView() });
+const translatedName=api.translate?.('PLUGIN.NAME');
+api.registerHeaderButton({ label: translatedName&&translatedName!=='PLUGIN.NAME'?translatedName:BUILD_CONFIG.name, icon: 'block', onClick: () => api.showIndexHtmlAsView() });
 api.registerConfigHandler(() => api.showIndexHtmlAsView());
 api.onMessage(async message => {
-  if (message?.type === 'status') return { ...controller.getState(), ready, tags: (await api.getAllTags()).filter(t => t.id !== 'TODAY').map(t => ({id:t.id,title:t.title,icon:t.icon,color:t.color})) };
+  if (message?.type === 'locale') return currentLocale();
+  if (message?.type === 'status') return { ...controller.getState(), ready, locale:currentLocale(), tags: (await api.getAllTags()).filter(t => t.id !== 'TODAY').map(t => ({id:t.id,title:t.title,icon:t.icon,color:t.color})) };
   if (message?.type === 'save') { await dispatch(() => controller.saveRules(message.rules)); return { ok: true }; }
   if (message?.type === 'reconnect') {
     if (controller.getState().helperRequired) { lastLaunch=0; await dispatch(() => controller.heartbeat()); }
     return { ok: true };
   }
-  throw new Error('対応していない操作です。');
+  throw new Error('error.unsupportedOperation');
 });
 api.onReady(async () => {
   try { await controller.initialize(); } catch { }

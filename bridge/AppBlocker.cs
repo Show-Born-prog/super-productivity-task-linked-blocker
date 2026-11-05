@@ -26,7 +26,7 @@ static class AppBlocker {
                 }
             }
         }
-        return errors>0 ? new("error","強制終了できない対象があります。対象アプリとの権限の違い等を確認してください。",pending,snapshot.revision) :
-            new("monitoring",pending>0 ? "対象プロセスの終了処理中です。" : null,pending,snapshot.revision);
+        return errors>0 ? new("error","app.terminationDenied",pending,snapshot.revision) :
+            new("monitoring",pending>0 ? "app.terminationPending" : null,pending,snapshot.revision);
     }
 }

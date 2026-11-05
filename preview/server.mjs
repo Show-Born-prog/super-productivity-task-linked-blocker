@@ -34,6 +34,9 @@ const routes=new Map([
   ['/preview.mjs',['preview/preview.mjs','text/javascript; charset=utf-8']],
   ['/preview.css',['preview/preview.css','text/css; charset=utf-8']],
   ['/native.mjs',['plugin/native.mjs','text/javascript; charset=utf-8']],
+  ['/localization.mjs',['plugin/localization.mjs','text/javascript; charset=utf-8']],
+  ['/shared/i18n.mjs',['shared/i18n.mjs','text/javascript; charset=utf-8']],
+  ['/locales/ja.json',['locales/ja.json','application/json; charset=utf-8']],
   ['/native.css',['plugin/native/components.css','text/css; charset=utf-8']],
 ]);
 const server=http.createServer(async(req,res)=>{

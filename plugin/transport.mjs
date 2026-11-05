@@ -28,7 +28,7 @@ try {
   if (age >= 0 && age < 1500 && status.stopping) return false;
   if (age >= 0 && age < 2000 && !status.stopping) return true;
 } catch {}
-if (!fs.existsSync(executable)) throw new Error('補助機能が見つかりません。ビルドしてください。');
+if (!fs.existsSync(executable)) throw new Error('error.helperMissing');
 const pending = path.join(directory,'launch-pending.json');
 try {
   if (Date.now()-fs.statSync(pending).mtimeMs < 5000) return false;
@@ -62,7 +62,7 @@ export function createTransport(api, { directory, executable, extensionId, port 
         continue;
       }
       // Never expose raw Node errors: they can contain local paths or inputs.
-      throw new Error('補助機能との接続に失敗しました。権限とビルド状態を確認してください。');
+      throw new Error('error.bridgeConnection');
     }
   }
   return {

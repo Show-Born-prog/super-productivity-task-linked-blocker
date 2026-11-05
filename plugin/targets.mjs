@@ -1,17 +1,20 @@
 import {normalizeDomain,normalizeExecutable} from '../shared/policy.mjs';
 import {nativeButton} from './native.mjs';
+import {t,bindText,bindTranslation} from './localization.mjs';
 
 export function createTargetSection({title,kind,values,onCommit}) {
+  const itemTitle={'ui.sites':'ui.siteName','ui.allowedSites':'ui.allowedSiteName','ui.apps':'ui.appName'}[title];
   const section=document.createElement('section');section.className='target-section';
   const header=document.createElement('div');header.className='target-heading';
-  const label=document.createElement('span');label.textContent=title+' ';
+  const label=document.createElement('span');const caption=document.createElement('span');bindText(caption,title);label.append(caption,' ');
   const count=document.createElement('span');count.className='target-count';label.append(count);
-  const add=nativeButton({label:title+'を追加',icon:'add',iconOnly:true});header.append(label,add);
-  const list=document.createElement('div');list.className='target-list';list.setAttribute('role','list');list.setAttribute('aria-label',title);section.append(header,list);
+  const add=nativeButton({label:t('ui.addTarget',{title:t(itemTitle)}),icon:'add',iconOnly:true});for(const attribute of ['aria-label','title'])bindTranslation(add,()=>t('ui.addTarget',{title:t(itemTitle)}),attribute);header.append(label,add);
+  const list=document.createElement('div');list.className='target-list';list.setAttribute('role','list');bindTranslation(list,()=>t(title),'aria-label');section.append(header,list);
   const records=new Map();let draft,disposed=false;
   const scope=element=>{element.setAttribute('_ngcontent-fg-native-task','');return element;};
   const getValues=()=>[...list.children].map(row=>records.get(row)?.value).filter(value=>typeof value==='string');
-  const refresh=()=>{list.classList.toggle('empty-section',list.children.length===0);count.textContent=`(${getValues().length})`;};
+  bindText(count,'ui.count',()=>({count:getValues().length}));
+  const refresh=()=>{list.classList.toggle('empty-section',list.children.length===0);bindText(count,'ui.count',()=>({count:getValues().length}));};
   function remove(record){records.delete(record.row);record.row.remove();refresh();}
   function shell(value){
     const row=document.createElement('task');row.className='target-row';row.setAttribute('_nghost-fg-native-task','');row.setAttribute('role','listitem');
@@ -20,15 +23,15 @@ export function createTargetSection({title,kind,values,onCommit}) {
   }
   function render(record){
     record.row.classList.remove('entry-row');record.error?.remove();record.line.replaceChildren();
-    const text=document.createElement('span');text.className='target-label';text.textContent=record.value;text.tabIndex=0;text.setAttribute('role','button');text.setAttribute('aria-label',record.value+'を編集');
+    const text=document.createElement('span');text.className='target-label';text.textContent=record.value;text.tabIndex=0;text.setAttribute('role','button');bindTranslation(text,()=>t('ui.editTarget',{value:record.value}),'aria-label');
     text.addEventListener('click',()=>edit(record));text.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();edit(record);}});
-    const trash=nativeButton({label:record.value+'を削除',icon:'delete',iconOnly:true});trash.classList.add('row-remove');trash.addEventListener('click',()=>{remove(record);onCommit();});record.line.append(text,trash);
+    const trash=nativeButton({label:t('ui.removeTarget',{value:record.value}),icon:'delete',iconOnly:true});for(const attribute of ['aria-label','title'])bindTranslation(trash,()=>t('ui.removeTarget',{value:record.value}),attribute);trash.classList.add('row-remove');trash.addEventListener('click',()=>{remove(record);onCommit();});record.line.append(text,trash);
   }
   function edit(existing){
     if(disposed)return;
     if(draft){draft.input.focus();return;}
     const record=existing||shell();const previous=record.value;record.row.classList.add('entry-row');record.line.replaceChildren();
-    const input=document.createElement('input');input.className='entry-input';input.placeholder=kind==='domain'?'example.com':'app.exe';input.value=previous||'';input.setAttribute('aria-label',title+'を入力');input.autocomplete='off';input.spellcheck=false;
+    const input=document.createElement('input');input.className='entry-input';input.placeholder=kind==='domain'?'example.com':'app.exe';input.value=previous||'';bindTranslation(input,()=>t('ui.enterTarget',{title:t(itemTitle)}),'aria-label');input.autocomplete='off';input.spellcheck=false;
     const error=document.createElement('p');error.className='entry-error';error.id='entry-error-'+crypto.randomUUID();error.setAttribute('role','alert');error.hidden=true;input.setAttribute('aria-describedby',error.id);record.error=error;record.wrapper.append(error);
     const events=new AbortController();let closed=false;
     draft={input,abort:()=>events.abort(),cancel:()=>finish(false)};
@@ -38,14 +41,15 @@ export function createTargetSection({title,kind,values,onCommit}) {
       if(commit&&input.value.trim()){
         try{
           candidate=(kind==='domain'?normalizeDomain:normalizeExecutable)(input.value);
-          if([...records.values()].some(other=>other!==record&&other.value===candidate))throw Error('すでに登録されています。');
-        }catch(e){input.setAttribute('aria-invalid','true');error.textContent=e.message;error.hidden=false;return false;}
+          if([...records.values()].some(other=>other!==record&&other.value===candidate))throw Error('validation.duplicateTarget');
+        }catch(e){input.setAttribute('aria-invalid','true');bindText(error,e.message,e.params);error.hidden=false;return false;}
       }
       closed=true;events.abort();draft=undefined;
       if(candidate===undefined)remove(record);else{record.value=candidate;render(record);refresh();}
       if(candidate!==previous)onCommit();return true;
     };
-    const done=nativeButton({label:'追加・確定',icon:'check',iconOnly:true}),cancel=nativeButton({label:'キャンセル',icon:'close',iconOnly:true});
+    const done=nativeButton({label:t('common.confirm'),icon:'check',iconOnly:true}),cancel=nativeButton({label:t('common.cancel'),icon:'close',iconOnly:true});
+    for(const[button,key]of[[done,'common.confirm'],[cancel,'common.cancel']])for(const attribute of ['aria-label','title'])bindTranslation(button,()=>t(key),attribute);
     done.addEventListener('click',()=>{if(finish(true))add.focus();else input.focus();});cancel.addEventListener('click',()=>{finish(false);add.focus();});
     input.addEventListener('input',()=>{input.removeAttribute('aria-invalid');error.hidden=true;});
     input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();if(finish(true))add.focus();}else if(event.key==='Escape'){event.preventDefault();finish(false);add.focus();}});

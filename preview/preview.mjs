@@ -1,4 +1,7 @@
 import {nativeButton,nativeSection,nativeTagPicker} from '/native.mjs';
+import {configureLocalization} from '/localization.mjs';
+const previewMessages=await(await fetch('/locales/ja.json')).json();
+configureLocalization({ja:previewMessages,en:previewMessages},'ja');
 
 // Preview data only. Autosaved to its own browser key; never connects to the plugin or helper.
 const tags=[{id:'a',title:'Software development'},{id:'b',title:'FG-検証B'}];

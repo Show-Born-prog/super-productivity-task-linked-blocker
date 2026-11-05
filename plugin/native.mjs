@@ -1,5 +1,6 @@
 // Appearance-only adapters for the host's emitted Material / Collapsible markup.
 // No host widgets, services, persistence or Angular runtime are instantiated.
+import {t,bindText,bindTranslation} from './localization.mjs';
 export async function initializeNativeAppearance(document,parent) {
   const anchor=document.getElementById('native-part-styles');
   const css=[];
@@ -53,15 +54,16 @@ export function nativeField(control,label) {
   field.syncNative=synchronize;return field;
 }
 export function nativeTagPicker(select,getTags) {
-  const label='タグ';const field=document.createElement('span');field.className='tag-picker';select.hidden=true;
-  const trigger=nativeButton({icon:'label_outline',label:'タグを変更',iconOnly:true});trigger.classList.add('native-tag-trigger');
+  const field=document.createElement('span');field.className='tag-picker';select.hidden=true;
+  const trigger=nativeButton({icon:'label_outline',label:t('ui.changeTag'),iconOnly:true});trigger.classList.add('native-tag-trigger');
   trigger.id=select.id+'-trigger';trigger.setAttribute('aria-haspopup','menu');trigger.setAttribute('aria-expanded','false');
   field.append(select,trigger);field.focusControl=trigger;
-  const menu=document.createElement('div');menu.id=select.id+'-menu';menu.className='mat-mdc-menu-panel native-tag-menu';menu.setAttribute('popover','auto');menu.setAttribute('role','menu');menu.setAttribute('aria-label',label);trigger.setAttribute('aria-controls',menu.id);
+  const menu=document.createElement('div');menu.id=select.id+'-menu';menu.className='mat-mdc-menu-panel native-tag-menu';menu.setAttribute('popover','auto');menu.setAttribute('role','menu');bindTranslation(menu,()=>t('ui.tag'),'aria-label');trigger.setAttribute('aria-controls',menu.id);
   const content=document.createElement('div');content.className='mat-mdc-menu-content';menu.append(content);field.append(menu);
   let listeners;
   field.syncNative=()=>trigger.setAttribute('aria-invalid',String(select.getAttribute('aria-invalid')==='true'));
-  const synchronize=()=>{const title=getTags().find(tag=>tag.id===select.value)?.title;const caption=title?`${title} のタグを変更`:'タグを選択';trigger.setAttribute('aria-label',caption);trigger.title=caption;field.syncNative();};
+  const caption=()=>{const name=getTags().find(tag=>tag.id===select.value)?.title;return name?t('ui.changeNamedTag',{name}):t('ui.selectTag');};
+  const synchronize=()=>{bindTranslation(trigger,caption,'aria-label');bindTranslation(trigger,caption,'title');field.syncNative();};
   const close=()=>{if(menu.matches(':popover-open'))menu.hidePopover();};
   menu.addEventListener('beforetoggle',event=>{if(event.newState==='closed'){listeners?.abort();trigger.setAttribute('aria-expanded','false');}});
   const open=()=>{
@@ -76,7 +78,7 @@ export function nativeTagPicker(select,getTags) {
       const text=document.createElement('span');text.className='mat-mdc-menu-item-text';text.textContent=tag?.title||option.textContent;item.append(text);
       item.addEventListener('click',()=>{select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));close();trigger.focus();});content.append(item);
     }
-    if(!content.children.length){const empty=document.createElement('span');empty.className='mat-mdc-menu-item';empty.textContent='タグなし';content.append(empty);}
+    if(!content.children.length){const empty=document.createElement('span');empty.className='mat-mdc-menu-item';bindText(empty,'ui.noTags');content.append(empty);}
     menu.showPopover();trigger.setAttribute('aria-expanded','true');
     const rect=field.getBoundingClientRect(),width=menu.offsetWidth;
     menu.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-width-8))+'px';

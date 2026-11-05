@@ -4,61 +4,61 @@ export function needsHelper(state) {
   return state.status === 'tracking' && (state.domains.length > 0 || (state.apps?.length || 0) > 0);
 }
 export function normalizeExecutable(value) {
-  if (typeof value !== 'string') throw new Error('アプリの実行ファイル名を入力してください。');
+  if (typeof value !== 'string') throw new Error('validation.executableRequired');
   const name = value.trim().toLowerCase();
   if (name.length > 150 || !/^.+\.exe$/.test(name) || /[<>:"/\\|?*\x00-\x1f]/.test(name) || name.startsWith('.') ||
       ['super productivity.exe','focusguard.bridge.exe','explorer.exe','winlogon.exe','csrss.exe','dwm.exe','taskmgr.exe'].includes(name)) {
-    throw new Error('アプリの.exe名を指定してください。本体・補助機能・Windowsの操作に必要なアプリは指定できません。');
+    throw new Error('validation.executableInvalid');
   }
   return name;
 }
 
 export function normalizeDomain(value) {
-  if (typeof value !== 'string') throw new Error('ドメインを入力してください。');
+  if (typeof value !== 'string') throw new Error('validation.domainRequired');
   const input = value.trim().toLowerCase().replace(/\.$/, '');
   // Accept domains only; credentials, paths, ports and wildcard syntax are errors.
-  if (!input || /[\s/:@?#*\\]/.test(input)) throw new Error('URLではなくドメインだけを入力してください。');
+  if (!input || /[\s/:@?#*\\]/.test(input)) throw new Error('validation.domainOnly');
   let host;
-  try { host = new URL(`https://${input}`).hostname; } catch { throw new Error('ドメインの形式が正しくありません。'); }
+  try { host = new URL(`https://${input}`).hostname; } catch { throw new Error('validation.domainFormat'); }
   if (host.length > 253 || !host.includes('.') || host.split('.').some(label =>
     !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label)) || /^[\d.]+$/.test(host)) {
-    throw new Error('有効なサイトのドメインを入力してください。');
+    throw new Error('validation.domainInvalid');
   }
   return host;
 }
 
 export function validateRules(rules) {
-  if (!Array.isArray(rules) || rules.length > 200) throw new Error('タグの設定数が多すぎます。');
+  if (!Array.isArray(rules) || rules.length > 200) throw new Error('validation.tagLimit');
   const seen = new Set();
   let total = 0;
   let appTotal = 0;
   let allowedTotal = 0;
   return rules.map(rule => {
     if (!rule || typeof rule.tagId !== 'string' || !rule.tagId || rule.tagId.length > 200 || seen.has(rule.tagId)) {
-      throw new Error('タグの指定が正しくないか重複しています。');
+      throw new Error('validation.tagInvalid');
     }
     seen.add(rule.tagId);
-    if (!Array.isArray(rule.domains)) throw new Error('禁止ドメインの形式が正しくありません。');
+    if (!Array.isArray(rule.domains)) throw new Error('validation.domainsFormat');
     const domains = [...new Set(rule.domains.map(normalizeDomain))].sort();
     total += domains.length;
-    if (total > MAX_DOMAINS) throw new Error(`禁止ドメインは合計${MAX_DOMAINS}件までです。`);
-    if (rule.apps !== undefined && !Array.isArray(rule.apps)) throw new Error('アプリ設定の形式が正しくありません。');
+    if (total > MAX_DOMAINS) throw Object.assign(new Error('validation.domainLimit'),{params:{max:MAX_DOMAINS}});
+    if (rule.apps !== undefined && !Array.isArray(rule.apps)) throw new Error('validation.appsFormat');
     const apps = new Set();
     for (const app of rule.apps || []) {
       const executable = normalizeExecutable(app?.executable);
-      if (app?.mode !== undefined) throw new Error('現在のアプリ設定は強制終了による遮断のみです。');
+      if (app?.mode !== undefined) throw new Error('validation.blockOnly');
       apps.add(executable);
     }
     appTotal += apps.size;
-    if (appTotal > 200) throw new Error('アプリ設定は合計200件までです。');
+    if (appTotal > 200) throw new Error('validation.appLimit');
     const result = { tagId: rule.tagId, domains, apps: [...apps].sort().map(executable=>({executable})) };
     if (rule.allowSitesEnabled !== undefined || rule.allowedDomains !== undefined) {
-      if (rule.allowSitesEnabled !== undefined && typeof rule.allowSitesEnabled !== 'boolean') throw new Error('許可サイトのオン・オフを確認してください。');
-      if (rule.allowedDomains !== undefined && !Array.isArray(rule.allowedDomains)) throw new Error('許可サイトの形式が正しくありません。');
+      if (rule.allowSitesEnabled !== undefined && typeof rule.allowSitesEnabled !== 'boolean') throw new Error('validation.allowToggle');
+      if (rule.allowedDomains !== undefined && !Array.isArray(rule.allowedDomains)) throw new Error('validation.allowedFormat');
       result.allowSitesEnabled = rule.allowSitesEnabled === true;
       result.allowedDomains = [...new Set((rule.allowedDomains || []).map(normalizeDomain))].sort();
       allowedTotal += result.allowedDomains.length;
-      if (allowedTotal > MAX_DOMAINS) throw new Error(`許可サイトは合計${MAX_DOMAINS}件までです。`);
+      if (allowedTotal > MAX_DOMAINS) throw Object.assign(new Error('validation.allowedLimit'),{params:{max:MAX_DOMAINS}});
     }
     return result;
   });
@@ -82,15 +82,15 @@ export function selectAllowedDomains(tagIds, rules) {
 // Compatibility only: legacy warning entries must never become forced termination.
 export function loadSettings(stored) {
   const legacy=Array.isArray(stored)||stored?.version===1;
-  if (!legacy && ![2,3].includes(stored?.version)) throw new Error('設定の形式を確認してください。');
+  if (!legacy && ![2,3].includes(stored?.version)) throw new Error('validation.settingsFormat');
   const original=Array.isArray(stored)?stored:stored.rules;
   const removed=new Set();
   const rules=legacy&&Array.isArray(original)?original.map(rule=>{
-    if(rule?.apps!==undefined&&!Array.isArray(rule.apps))throw new Error('アプリ設定の形式が正しくありません。');
+    if(rule?.apps!==undefined&&!Array.isArray(rule.apps))throw new Error('validation.appsFormat');
     return {...rule,apps:(rule?.apps||[]).flatMap(app=>{
       const executable=normalizeExecutable(app?.executable);
       if(app?.mode==='warn'){removed.add(executable);return [];}
-      if(app?.mode!==undefined&&app.mode!=='block')throw new Error('旧アプリ設定の形式を確認してください。');
+      if(app?.mode!==undefined&&app.mode!=='block')throw new Error('validation.legacyAppsFormat');
       return [{executable}];
     })};
   }):original;

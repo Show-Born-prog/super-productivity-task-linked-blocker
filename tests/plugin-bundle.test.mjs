@@ -17,8 +17,8 @@ test('packaged settings fit the installed host index limit and native CSS round-
 });
 
 test('renamed distributions retain their IDs and include usable native SVG and Chrome PNG icons',async()=>{
- const name='タスク連動ブロッカー',plugin=JSON.parse(await readFile('dist/plugin/manifest.json','utf8')),extension=JSON.parse(await readFile('dist/extension/manifest.json','utf8'));
- assert.equal(plugin.name,name);assert.equal(extension.name,name);assert.equal(plugin.id,'super-focus-guard');
+ const name='Task-linked Blocker',plugin=JSON.parse(await readFile('dist/plugin/manifest.json','utf8')),extension=JSON.parse(await readFile('dist/extension/manifest.json','utf8'));
+ assert.equal(plugin.name,name);assert.equal(extension.name,'__MSG_product_name__');assert.equal(plugin.id,'super-focus-guard');
  const id=[...createHash('sha256').update(Buffer.from(extension.key,'base64')).digest().subarray(0,16)].flatMap(n=>[n>>4,n&15]).map(n=>String.fromCharCode(97+n)).join('');assert.equal(id,'kjlclkomkeagcfgfjhjlmigdnobdiccp');
  const zip=await readFile('dist/super-focus-guard.zip'),entries=new Map();let offset=0;
  while(zip.readUInt32LE(offset)===0x04034b50){const size=zip.readUInt32LE(offset+18),length=zip.readUInt16LE(offset+26),extra=zip.readUInt16LE(offset+28),start=offset+30+length+extra;entries.set(zip.subarray(offset+30,offset+30+length).toString(),zip.subarray(start,start+size));offset=start+size;}
@@ -39,7 +39,7 @@ test('distribution has no warning UI, notification sender or Windows Desktop run
 test('packaged plugin initializes, receives actual API-shaped hooks, exposes Japanese UI data and cleans up',async()=>{
  await mkdir('.test-tmp',{recursive:true});const directory=await mkdtemp(path.resolve('.test-tmp/plugin-'));
  const hooks=new Map();const intervals=new Map();let onReady,onUnload,onMessage,header;let index=0;let sharingConflict=false;
- const api={registerHook:(name,fn)=>hooks.set(name,fn),registerHeaderButton:value=>{header=value;},registerConfigHandler:()=>{},
+ const api={getCurrentLanguage:()=> 'ja',translate:key=>key==='PLUGIN.NAME'?'タスク連動ブロッカー':key,registerHook:(name,fn)=>hooks.set(name,fn),registerHeaderButton:value=>{header=value;},registerConfigHandler:()=>{},
   onMessage:fn=>{onMessage=fn;},onReady:fn=>{onReady=fn;},onUnload:fn=>{onUnload=fn;},
   getTasks:async()=>[{id:'fixture-task',tagIds:['fixture-tag']}],getAllTags:async()=>[{id:'fixture-tag',title:'試験用',icon:'label_outline',color:'#0088aa'}],showSnack:()=>{},
   executeNodeScript:async ({script,args})=>{
@@ -51,6 +51,7 @@ test('packaged plugin initializes, receives actual API-shaped hooks, exposes Jap
  vm.runInNewContext(code,{PluginAPI:api,URL,crypto:{randomUUID},structuredClone,setTimeout,setInterval:(fn)=>{const id=++index;intervals.set(id,fn);return id;},clearInterval:id=>intervals.delete(id)});
  await onReady();let state=await onMessage({type:'status'});assert.equal(state.status,'unknown');assert.equal(sharingConflict,true);
  assert.equal(header.label,'タスク連動ブロッカー');assert.equal(header.icon,'block');
+ assert.equal(await onMessage({type:'locale'}),'ja');assert.equal(state.locale,'ja');
  await onMessage({type:'save',rules:[{tagId:'fixture-tag',domains:['youtube.com'],allowSitesEnabled:true,allowedDomains:['music.youtube.com']}]});
  await hooks.get('currentTaskChange')({current:{id:'fixture-task',tagIds:['fixture-tag']},previous:null});
  state=await onMessage({type:'status'});assert.equal(state.status,'tracking');assert.deepEqual(Array.from(state.domains),['youtube.com']);
