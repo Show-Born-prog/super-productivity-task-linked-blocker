@@ -1,0 +1,13 @@
+node_modules/
+dist/
+**/bin/
+**/obj/
+.research/
+.local/
+.test-tmp/
+*.log
+*.user
+*.token
+.env*
+!*.example
+coverage/
