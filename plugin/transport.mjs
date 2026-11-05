@@ -1,7 +1,8 @@
 export const FILE_SCRIPT = `
 const fs = require('fs');
 const path = require('path');
-const [directory, operation, data] = args;
+const [, operation, data] = args;
+const directory = args[0] || path.join(require('os').homedir(), '.task-linked-blocker', 'runtime');
 fs.mkdirSync(directory, { recursive: true });
 const file = path.join(directory, operation === 'rules' ? 'rules.json' : 'state.json');
 if (operation === 'load') {
@@ -21,14 +22,21 @@ try {
 export const LAUNCH_SCRIPT = `
 const fs = require('fs');
 const path = require('path');
-const [directory, executable, extensionId, port] = args;
+const [, configuredExecutable, extensionId, port] = args;
+const directory = args[0] || path.join(require('os').homedir(), '.task-linked-blocker', 'runtime');
 try {
   const status = JSON.parse(fs.readFileSync(path.join(directory, 'bridge-status.json'), 'utf8'));
   const age = Date.now() - status.updatedAt;
   if (age >= 0 && age < 1500 && status.stopping) return false;
   if (age >= 0 && age < 2000 && !status.stopping) return true;
 } catch {}
-if (!fs.existsSync(executable)) throw new Error('error.helperMissing');
+let executable = configuredExecutable;
+if (!executable) {
+  const installation = JSON.parse(fs.readFileSync(path.join(directory, '..', 'installation.json'), 'utf8'));
+  if (installation.version !== 1 || typeof installation.executable !== 'string') throw new Error('error.helperMissing');
+  executable = installation.executable;
+}
+if (!path.isAbsolute(executable) || path.basename(executable) !== 'FocusGuard.Bridge.exe' || !fs.existsSync(executable)) throw new Error('error.helperMissing');
 const pending = path.join(directory,'launch-pending.json');
 try {
   if (Date.now()-fs.statSync(pending).mtimeMs < 5000) return false;

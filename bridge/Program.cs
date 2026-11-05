@@ -7,6 +7,10 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 
 // No REST API, user task database, remote endpoint, or request logging.
+if (args.Contains("--install")) {
+    Environment.ExitCode = Installation.Run(args);
+    return;
+}
 var stateDir = Value("--state-dir") ?? throw new ArgumentException("--state-dir is required");
 var extensionId = Value("--extension-id") ?? throw new ArgumentException("--extension-id is required");
 var portText = Value("--port") ?? "47821";
@@ -48,13 +52,9 @@ app.Map("/state", async context => {
 
 // Do not advertise liveness until the listener has actually bound successfully.
 try { await app.StartAsync(); } catch (IOException) { return; }
-try {
-    var pending=Path.Combine(stateDir,"launch-pending.json");
-    using var record=JsonDocument.Parse(File.ReadAllText(pending));
-    if(record.RootElement.GetProperty("pid").GetInt32()==Environment.ProcessId) File.Delete(pending);
-} catch(Exception e) when(e is IOException or JsonException or UnauthorizedAccessException or KeyNotFoundException or InvalidOperationException or FormatException) { }
 var monitor = Task.Run(async () => {
     var lastFresh = DateTimeOffset.UtcNow;
+    var announced = false;
     try {
         while (!shutdown.IsCancellationRequested) {
             var state = ReadState();
@@ -63,9 +63,12 @@ var monitor = Task.Run(async () => {
             var stopping = state.status != "disconnected" && !NeedsHelper(state);
             if (state.status != "disconnected") lastFresh = now;
             var fresh = clients.Values.Where(a => now.ToUnixTimeMilliseconds() - a.updatedAt < 2500 && a.revision == state.revision).ToArray();
-            WriteAtomic("bridge-status.json", new { updatedAt = now.ToUnixTimeMilliseconds(), pid = Environment.ProcessId,
+            var published = WriteAtomic("bridge-status.json", new { updatedAt = now.ToUnixTimeMilliseconds(), pid = Environment.ProcessId,
                 browsers = fresh, appProtection, stopping, workingSetBytes = Environment.WorkingSet,
                 cpuMs = ownProcess.TotalProcessorTime.TotalMilliseconds });
+            // Keep the launch lock until liveness replaces it. A bound listener alone
+            // leaves a gap where another launch can race before the first status write.
+            if (published && !announced) { ReleaseLaunchPending(); announced = true; }
             if (stopping) {
                 // Give each WebSocket loop one turn to send the released state.
                 // A quick stop/start can reuse this listener instead of racing a new process.
@@ -102,12 +105,20 @@ State ReadState() {
 }
 bool ValidDomain(string? d) => d is not null && d.Length <= 253 && d.Contains('.') &&
     !Regex.IsMatch(d, "^[0-9.]+$") && d.Split('.').All(label => Regex.IsMatch(label, "^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$"));
-void WriteAtomic(string name, object data) {
+void ReleaseLaunchPending() {
+    try {
+        var pending = Path.Combine(stateDir, "launch-pending.json");
+        using var record = JsonDocument.Parse(File.ReadAllText(pending));
+        if (record.RootElement.GetProperty("pid").GetInt32() == Environment.ProcessId) File.Delete(pending);
+    } catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException or KeyNotFoundException or InvalidOperationException or FormatException) { }
+}
+bool WriteAtomic(string name, object data) {
     try {
         var destination = Path.Combine(stateDir, name);
         var temp = destination + $".{Environment.ProcessId}.tmp";
         File.WriteAllText(temp, JsonSerializer.Serialize(data)); File.Move(temp, destination, true);
-    } catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        return true;
+    } catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
 }
 async Task ReceiveAcks(WebSocket socket, string id, CancellationToken ct) {
     var buffer = new byte[2048];

@@ -1,12 +1,14 @@
 {
   "name": "super-focus-guard",
-  "version": "0.9.4",
+  "version": "0.10.0",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node scripts/test.mjs",
-    "test:native": "node scripts/test.mjs native"
+    "test:native": "node scripts/test.mjs native",
+    "package": "node scripts/package.mjs",
+    "test:package": "node --test tests/package/distribution.test.mjs"
   },
   "engines": { "node": ">=20.15" }
 }

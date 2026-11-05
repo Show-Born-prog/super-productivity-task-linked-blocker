@@ -49,16 +49,16 @@
 
 **動作確認環境：Windows 11 / Super Productivity 19.2.0 / Chrome 156**
 
-現在は開発版です。[ビルド手順](docs/BUILD.md)で導入ファイルを生成してから、以下の2つを読み込みます。
+配布ZIP（`task-linked-blocker-バージョン-win-x64.zip`）を使い続ける場所へすべて展開し、`Setup.cmd`を一度実行します。**自前ビルドや、Node.js・.NETの別途インストールは不要です。** 続いて以下の2つを読み込みます。
 
 | 導入先 | 読み込むもの | 操作 |
 | --- | --- | --- |
-| Chrome | `dist/extension` | `chrome://extensions` → デベロッパー モード →「パッケージ化されていない拡張機能を読み込む」 |
-| Super Productivity | `dist/super-focus-guard.zip` | 設定 → プラグイン → ファイルを選択 → 有効化 |
+| Chrome | `extension`フォルダー | `chrome://extensions` → デベロッパー モード →「パッケージ化されていない拡張機能を読み込む」 |
+| Super Productivity | `super-focus-guard.zip` | 設定 → プラグイン → ファイルを選択 → 有効化 |
 
 本体のNode実行許可は、設定の保存とWindows補助機能の起動に使います。導入後は左メニューの「タスク連動ブロッカー」から設定できます。
 
-Chrome拡張は手動導入です。ほかのChromium系ブラウザは、現時点では動作未確認です。
+展開したフォルダーはそのまま残してください。[更新・移動・削除](docs/INSTALL.md)／[ソースからのビルド](docs/BUILD.md)。Chrome拡張は手動導入です。ほかのChromium系ブラウザは、現時点では動作未確認です。
 
 <a id="privacy"></a>
 ## プライバシー
