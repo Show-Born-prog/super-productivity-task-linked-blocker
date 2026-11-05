@@ -36,6 +36,18 @@ test('distribution has no warning UI, notification sender or Windows Desktop run
  assert.equal(config.runtimeOptions.frameworks.some(f=>f.name==='Microsoft.WindowsDesktop.App'),false);
 });
 
+test('all distribution components retain the complete appearance and icon license notices',async()=>{
+ const appearance=await readFile('plugin/native/NOTICE.txt','utf8'),icon=await readFile('assets/NOTICE.txt','utf8');
+ const expected=appearance+'\n---\n\n'+icon;
+ for(const component of ['plugin','extension','bridge'])assert.equal(await readFile(`dist/${component}/NOTICE.txt`,'utf8'),expected);
+ const html=await readFile('dist/plugin/index.html','utf8');assert.ok(html.includes(appearance));
+ const zip=await readFile('dist/super-focus-guard.zip');let offset=0,notice;
+ while(zip.readUInt32LE(offset)===0x04034b50){const size=zip.readUInt32LE(offset+18),length=zip.readUInt16LE(offset+26),extra=zip.readUInt16LE(offset+28),start=offset+30+length+extra;
+  if(zip.subarray(offset+30,offset+30+length).toString()==='NOTICE.txt')notice=zip.subarray(start,start+size).toString();offset=start+size;}
+ assert.equal(notice,expected);
+ for(const text of ['Copyright (c) 2018 Johannes Millan','Copyright (c) 2026 Google LLC.','Copyright (c) 2026 Lucide Icons and Contributors'])assert.ok(notice.includes(text));
+});
+
 test('packaged plugin initializes, receives actual API-shaped hooks, exposes Japanese UI data and cleans up',async()=>{
  await mkdir('.test-tmp',{recursive:true});const directory=await mkdtemp(path.resolve('.test-tmp/plugin-'));
  const hooks=new Map();const intervals=new Map();let onReady,onUnload,onMessage,header;let index=0;let sharingConflict=false;

@@ -35,6 +35,7 @@ await writeFile(path.join(dist, 'plugin/plugin.js'), code);
 const settingsModules = ['shared/i18n.mjs','plugin/localization.mjs','shared/policy.mjs','plugin/form.mjs','plugin/view-refresh.mjs','plugin/native.mjs','plugin/targets.mjs','plugin/autosave.mjs','plugin/rule-menu.mjs','plugin/ui.mjs'];
 const uiCode = (await Promise.all(settingsModules.map(readBundledSource))).join('\n');
 const nativeNotice=await readFile(path.join(root,'plugin/native/NOTICE.txt'),'utf8');
+const distributionNotice=nativeNotice+'\n---\n\n'+await readFile(path.join(root,'assets/NOTICE.txt'),'utf8');
 const nativeCss=await readFile(path.join(root,'plugin/native/components.css'),'utf8');
 const packedCss=gzipSync(nativeCss,{level:9}).toString('base64');
 const settingsCss=await readFile(path.join(root,'plugin/ui.css'),'utf8');
@@ -44,7 +45,7 @@ const indexBytes=Buffer.byteLength(html,'utf8');
 if(indexBytes>100000)throw new Error(`index.html exceeds the host limit: ${indexBytes} bytes (build guard: 100000 bytes)`);
 await writeFile(path.join(dist, 'plugin/index.html'), html);
 await cp(path.join(root,'assets/icon.svg'),path.join(dist,'plugin/icon.svg'));
-await cp(path.join(root,'assets/NOTICE.txt'),path.join(dist,'plugin/NOTICE.txt'));
+await writeFile(path.join(dist,'plugin/NOTICE.txt'),distributionNotice);
 const manifest = { id: 'super-focus-guard', name: productName, version, manifestVersion: 1, minSupVersion: '19.2.0',
   description: messages.en['product.description'],
   iFrame: true, uiKit: false, hooks: ['currentTaskChange','taskUpdate','action','languageChange'],
@@ -53,6 +54,7 @@ await mkdir(path.join(dist,'plugin/i18n'),{recursive:true});
 for(const locale of manifest.i18n.languages){const catalog=messages[locale==='zh-tw'?'zh-TW':locale];await writeFile(path.join(dist,'plugin/i18n',locale+'.json'),JSON.stringify({PLUGIN:{NAME:catalog['product.name'],DESCRIPTION:catalog['product.description']}}));}
 await writeFile(path.join(dist, 'plugin/manifest.json'), JSON.stringify(manifest, null, 2));
 await cp(path.join(root, 'extension'), path.join(dist, 'extension'), { recursive: true, filter: s => !s.endsWith('public-key.txt') });
+await writeFile(path.join(dist,'extension/NOTICE.txt'),distributionNotice);
 await cp(path.join(root, 'shared/policy.mjs'), path.join(dist, 'extension/policy.mjs'));
 await writeFile(path.join(dist, 'extension/enforcer.mjs'), (await readFile(path.join(root,'extension/enforcer.mjs'),'utf8')).replace('../shared/policy.mjs','./policy.mjs'));
 for(const file of ['popup.html','blocked.html'])await writeFile(path.join(dist,'extension',file),(await readFile(path.join(root,'extension',file),'utf8')).replaceAll('__PRODUCT_NAME__',productName).replace('__BLOCKED_MESSAGE__',messages.en['extension.taskRunning']).replace('__CHECKING__',messages.en['extension.checking']));
@@ -80,4 +82,5 @@ const result = spawnSync('dotnet', ['publish','bridge/FocusGuard.Bridge.csproj',
   cwd: root, windowsHide: true, encoding: 'utf8', env: { ...process.env, DOTNET_CLI_HOME: path.join(root,'.local/dotnet'), DOTNET_CLI_TELEMETRY_OPTOUT:'1', DOTNET_SKIP_FIRST_TIME_EXPERIENCE:'1', DOTNET_GENERATE_ASPNET_CERTIFICATE:'false' }
 });
 if (result.status !== 0) { console.error(result.stdout, result.stderr); process.exit(1); }
+await writeFile(path.join(dist,'bridge/NOTICE.txt'),distributionNotice);
 console.log(`ビルド成功\nindex.html: ${indexBytes} / 100000 bytes\nプラグイン: ${path.join(dist,'super-focus-guard.zip')}\n拡張: ${path.join(dist,'extension')}\n拡張ID: ${extensionId}`);
