@@ -97,17 +97,11 @@
   "validation.duplicateTag": "This tag already has a rule. Merge the entries into one rule.",
   "validation.duplicateTarget": "Already registered.",
   "extension.checking": "Checking connection…",
-  "extension.settingsHint": "Set blocked sites and apps in {name} inside Super Productivity.",
-  "extension.blocked": "Blocking sites",
-  "extension.noSites": "Task running · no blocked sites",
-  "extension.break": "On break · blocking paused",
-  "extension.stopped": "Task stopped · blocking off",
-  "extension.unknown": "Tracking state is unconfirmed. Stop and restart the task.",
-  "extension.error": "Could not apply blocking. Sites are unprotected.",
-  "extension.disconnected": "Disconnected · sites are unprotected.",
-  "extension.unavailable": "Could not connect to the extension. Sites are unprotected.",
+  "extension.disconnected": "Disconnected",
+  "extension.unavailable": "Connection error",
   "extension.taskRunning": "Task in progress",
   "ui.siteName": "site",
   "ui.allowedSiteName": "allowed site",
-  "ui.appName": "app"
+  "ui.appName": "app",
+  "extension.connected": "Connected"
 }

@@ -96,18 +96,12 @@
   "validation.selectTag": "請選擇要設定的標籤。",
   "validation.duplicateTag": "此標籤已有規則。請合併為同一個規則。",
   "validation.duplicateTarget": "已登錄此項目。",
-  "extension.checking": "正在確認連線狀態…",
-  "extension.settingsHint": "請在 Super Productivity 的「{name}」中設定封鎖項目。",
-  "extension.blocked": "網站封鎖中",
-  "extension.noSites": "工作計時中・未指定封鎖網站",
-  "extension.break": "休息中・已暫停封鎖",
-  "extension.stopped": "計時已停止・已解除封鎖",
-  "extension.unknown": "尚未確認計時狀態。請先停止，再重新開始工作。",
-  "extension.error": "無法套用封鎖。目前未保護網站。",
-  "extension.disconnected": "未連線・目前未保護網站。",
-  "extension.unavailable": "無法連線至擴充功能。目前未保護網站。",
+  "extension.checking": "確認連線中…",
+  "extension.disconnected": "未連線",
+  "extension.unavailable": "連線錯誤",
   "extension.taskRunning": "工作進行中",
   "ui.siteName": "網站",
   "ui.allowedSiteName": "允許的網站",
-  "ui.appName": "應用程式"
+  "ui.appName": "應用程式",
+  "extension.connected": "已連線"
 }

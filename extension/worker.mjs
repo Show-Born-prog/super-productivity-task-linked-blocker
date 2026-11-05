@@ -6,7 +6,7 @@ let reconnectTimer;
 const ready = enforcer.clear(); // A restarted worker never trusts old session rules.
 let badgeText, badgeColor;
 function badge(state) {
-  const text=state.status === 'disconnected' ? '!' : state.status === 'error' ? 'ERR' : state.domains.length ? String(state.domains.length) : '';
+  const text=state.status === 'disconnected' ? '' : state.status === 'error' ? 'ERR' : state.domains.length ? String(state.domains.length) : '';
   const color=state.domains.length ? '#287852' : '#8c5723';
   if (text!==badgeText) {chrome.action.setBadgeText({text});badgeText=text;}
   if (color!==badgeColor) {chrome.action.setBadgeBackgroundColor({color});badgeColor=color;}
@@ -51,7 +51,7 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
   if (message?.type !== 'status' || sender.id !== chrome.runtime.id) return;
   ready.then(async () => {
     if (enforcer.getState().expiresAt <= Date.now()) await enforcer.clear();
-    respond(enforcer.getState());
+    respond({...enforcer.getState(),connected:socket?.readyState===WebSocket.OPEN});
   });
   return true;
 });

@@ -20,10 +20,28 @@ async function setup(){
  return{chrome,sockets,timers,badges,advance:value=>{now=value;}};
 }
 const state=()=>({version:1,revision:'test:1',issuedAt:10000,expiresAt:16000,status:'tracking',domains:['youtube.com']});
+
+test('popup status reports the actual socket connection without treating it as blocking success',async()=>{
+ const f=await setup(),socket=f.sockets[0],listener=f.chrome.runtime.onMessage.listeners[0];
+ const status=()=>new Promise(resolve=>assert.equal(listener({type:'status'},{id:'fixture'},resolve),true));
+ socket.readyState=0;assert.equal((await status()).connected,false);
+ socket.readyState=1;const connected=await status();assert.equal(connected.connected,true);assert.equal(connected.status,'disconnected','an open socket alone does not assert valid protection');
+ await socket.onmessage({data:JSON.stringify(state())});assert.equal((await status()).domains.length,1);
+ f.advance(16001);const stale=await status();assert.equal(stale.connected,true);assert.equal(stale.status,'disconnected');assert.equal(f.chrome.inspect().rules.length,0,'status still expires old protection');
+ await socket.close();assert.equal((await status()).connected,false);
+ assert.equal(listener({type:'status'},{id:'other'},()=>assert.fail('foreign sender')),undefined);
+});
 test('real worker logic acknowledges only applied rules and clears immediately when helper disconnects',async()=>{
  const f=await setup();const socket=f.sockets[0];await socket.onmessage({data:JSON.stringify(state())});
- assert.equal(f.chrome.inspect().rules.length,1);assert.equal(socket.sent.at(-1).protection,'active');
- await socket.close();assert.equal(f.chrome.inspect().rules.length,0);assert.equal(f.badges.at(-1),'!');assert.ok([...f.timers.values()].some(t=>t.ms===1000));
+ assert.equal(f.chrome.inspect().rules.length,1);assert.equal(socket.sent.at(-1).protection,'active');assert.equal(f.badges.at(-1),'1');
+ await socket.close();assert.equal(f.chrome.inspect().rules.length,0);assert.equal(f.badges.at(-1),'');assert.ok([...f.timers.values()].some(t=>t.ms===1000));
+});
+
+test('idle disconnection has no warning badge while a real rule-application failure retains ERR',async()=>{
+ const f=await setup(),socket=f.sockets[0];
+ f.chrome.declarativeNetRequest.updateSessionRules=async()=>{throw Error('fixture application failure');};
+ await socket.onmessage({data:JSON.stringify(state())});assert.equal(f.badges.at(-1),'ERR');assert.equal(socket.sent.at(-1).protection,'error');
+ await socket.close();assert.equal(f.badges.at(-1),'');assert.equal(f.badges.includes('!'),false);
 });
 test('worker lease timer and alarm watchdog release stale rules without claiming protection',async()=>{
  const f=await setup();const socket=f.sockets[0];await socket.onmessage({data:JSON.stringify(state())});f.advance(16001);
