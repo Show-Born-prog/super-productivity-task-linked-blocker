@@ -15,6 +15,7 @@ import {windowsArchive} from '../../scripts/windows-archive.mjs';
 const require=createRequire(import.meta.url),AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
 
 test('distribution checksum and allowlisted archive contain runtime notices and no local settings',async()=>{
+ assert.deepEqual((await readdir('dist')).filter(name=>/^package-[A-Za-z0-9]{6}(?:\.zip)?$/.test(name)),[],'packaging must remove its temporary folders and archive');
  const {version}=JSON.parse(await readFile('package.json','utf8')),archive=`dist/task-linked-blocker-${version}-win-x64.zip`;
  const checksum=await readFile(archive+'.sha256','utf8');assert.equal(checksum.split(' ')[0],createHash('sha256').update(await readFile(archive)).digest('hex'));
  const bytes=await readFile(archive);assert.equal(bytes.readUInt32LE(0),0x04034b50);
