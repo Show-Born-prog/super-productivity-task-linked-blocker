@@ -48,9 +48,8 @@
 **動作確認環境：Windows 11 / Super Productivity 19.2.0 / Chrome 156**
 
 1. 配布ZIPを右クリック → **すべて展開**。
-2. `extension`フォルダー内の **`Setup.cmd`を一度実行**。
-3. Chromeで`chrome://extensions` → **デベロッパー モード** → **パッケージ化されていない拡張機能を読み込む** → `extension`を選択。
-4. Super Productivityの**設定 → プラグイン**で **`super-focus-guard.zip`** を読み込み、有効化。
+2. Chromeで`chrome://extensions` → **デベロッパー モード** → **パッケージ化されていない拡張機能を読み込む** → `extension`を選択。
+3. Super Productivityの**設定 → プラグイン**で **`super-focus-guard.zip`** を読み込み、有効化。
 
 本体のNode実行許可は、設定保存とWindowsアプリ遮断用の補助機能の起動に使います。展開フォルダーは利用中そのまま残してください。
 
@@ -61,6 +60,7 @@ ZIPの中身は`super-focus-guard.zip`・`extension`・[HowToInstall.md](HowToIn
 
 **ブロックの処理と設定保存はPC内で完結します。** アカウントやクラウド接続は不要です。
 
+- 初回設定では、この拡張の保存場所をブラウザの拡張登録情報から確認します。
 - 設定はローカル保存。開発者への送信やアクセス解析はありません。
 - ブラウザのタブ情報は、禁止サイトの判定と解除後の復帰に使います。
 - キー入力・画面・クリップボードは取得しません。

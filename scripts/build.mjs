@@ -27,7 +27,7 @@ catch {
 }
 const extensionId = [...createHash('sha256').update(Buffer.from(key, 'base64')).digest().subarray(0, 16)]
   .flatMap(n => [n >> 4, n & 15]).map(n => String.fromCharCode(97 + n)).join('');
-const config = { ...(!portable ? {directory: path.join(root, '.local/runtime'), executable: path.join(dist, 'bridge/FocusGuard.Bridge.exe')} : {}), extensionId, name: productName };
+const config = { ...(!portable ? {directory: path.join(root, '.local/runtime')} : {}), extensionId, extensionKey:key, name: productName };
 const runtimeModules = ['shared/policy.mjs', 'plugin/controller.mjs', 'plugin/transport.mjs', 'plugin/navigation-appearance.mjs', 'plugin/navigation-localization.mjs', 'plugin/runtime.mjs'];
 let code = `(() => { 'use strict';\nconst BUILD_CONFIG = ${JSON.stringify(config)};\n`;
 for (const file of runtimeModules) code += await readBundledSource(file) + '\n';
@@ -84,6 +84,7 @@ const result = spawnSync('dotnet', ['publish','bridge/FocusGuard.Bridge.csproj',
 });
 if (result.status !== 0) { console.error(result.stdout, result.stderr); process.exit(1); }
 await writeFile(path.join(dist,'bridge/NOTICE.txt'),distributionNotice);
+if(!portable)await cp(path.join(dist,'bridge'),path.join(dist,'extension/bridge'),{recursive:true,filter:file=>!file.endsWith('.pdb')});
 if(portable){
   const runtime=JSON.parse(await readFile(path.join(dist,'bridge/FocusGuard.Bridge.runtimeconfig.json'),'utf8'));
   const assets=JSON.parse(await readFile(path.join(root,'bridge/obj/project.assets.json'),'utf8'));

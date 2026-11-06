@@ -15,7 +15,6 @@ const staging=await mkdtemp(path.join(root,'dist/package-'));
 await cp(path.join(builtDirectory,'extension'),path.join(staging,'extension'),{recursive:true});
 await cp(path.join(builtDirectory,'bridge'),path.join(staging,'extension/bridge'),{recursive:true,filter:file=>!file.endsWith('.pdb')});
 await cp(path.join(builtDirectory,'super-focus-guard.zip'),path.join(staging,'super-focus-guard.zip'));
-await cp(path.join(root,'distribution/Setup.cmd'),path.join(staging,'extension/Setup.cmd'));
 await cp(path.join(root,'HowToInstall.md'),path.join(staging,'HowToInstall.md'));
 await cp(path.join(root,'THIRD_PARTY_NOTICES.md'),path.join(staging,'extension/THIRD_PARTY_NOTICES.md'));
 // Self-contained .NET publish carries its runtime LICENSE/ThirdPartyNotices files.

@@ -5,6 +5,7 @@ import {createRequire} from 'node:module';
 import {mkdir,mkdtemp,readFile} from 'node:fs/promises';
 import {setTimeout as delay} from 'node:timers/promises';
 import path from 'node:path';
+import {createServer} from 'node:net';
 import {createTransport} from '../../plugin/transport.mjs';
 
 const require=createRequire(import.meta.url);
@@ -20,7 +21,10 @@ test('Windows helper read conflicts do not fail plugin state publication', {time
   catch(e){if(e.code==='EPERM'||e.code==='EBUSY')conflicts++;return{success:false,error:e.message};}
  }},{directory});
  await transport.write(snapshot());
- const child=spawn(path.resolve('dist/bridge/FocusGuard.Bridge.exe'),['--state-dir',directory,'--extension-id','a'.repeat(32),'--port','49232'],{windowsHide:true,stdio:'ignore'});
+ // Avoid a fixed port that another program or Windows can reserve.
+ const listener=createServer();await new Promise((resolve,reject)=>{listener.once('error',reject);listener.listen(0,'127.0.0.1',resolve);});
+ const port=listener.address().port;await new Promise(resolve=>listener.close(resolve));
+ const child=spawn(path.resolve('dist/bridge/FocusGuard.Bridge.exe'),['--state-dir',directory,'--extension-id','a'.repeat(32),'--port',String(port)],{windowsHide:true,stdio:'ignore'});
  t.after(()=>{if(child.exitCode===null)child.kill();});
  let started=false;
  for(let i=0;i<50;i++){

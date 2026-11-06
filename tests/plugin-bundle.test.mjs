@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {SETUP_SCRIPT} from '../plugin/transport.mjs';
 import {randomUUID,createHash} from 'node:crypto';
 import {readFile,mkdir,mkdtemp} from 'node:fs/promises';
 import path from 'node:path';
@@ -55,7 +56,7 @@ test('packaged plugin initializes, receives actual API-shaped hooks, exposes Jap
   onMessage:fn=>{onMessage=fn;},onReady:fn=>{onReady=fn;},onUnload:fn=>{onUnload=fn;},
   getTasks:async()=>[{id:'fixture-task',tagIds:['fixture-tag']}],getAllTags:async()=>[{id:'fixture-tag',title:'試験用',icon:'label_outline',color:'#0088aa'}],showSnack:()=>{},
   executeNodeScript:async ({script,args})=>{
-   if(script.includes("require('child_process')")) return{success:true,result:true}; // No process launches in this unit test.
+   if(script===SETUP_SCRIPT||script.includes("require('child_process')")) return{success:true,result:true}; // Setup is exercised with isolated profiles in auto-setup and package tests.
    if(args[1]==='state'&&!sharingConflict){sharingConflict=true;return{success:false,error:'EPERM: operation not permitted, rename fixture'};}
    return{success:true,result:await new AsyncFunction('args','require',script)([directory,...args.slice(1)],require)};
   }};

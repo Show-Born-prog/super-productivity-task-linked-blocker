@@ -46,6 +46,8 @@ api.onMessage(async message => {
   throw new Error('error.unsupportedOperation');
 });
 api.onReady(async () => {
+  try { await transport.prepare(true); } catch { }
+  if (unloaded) return;
   try { await controller.initialize(); } catch { }
   if (unloaded) return;
   ready = true;
