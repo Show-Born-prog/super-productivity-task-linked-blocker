@@ -1,11 +1,11 @@
 <p align="center"><img src="../assets/icon.svg" width="40" height="40" alt="禁止マーク"></p>
 
-<h1 align="center">Task-linked Blocker</h1>
+<h1 align="center">Task-linked Blocker for Super Productivity</h1>
 
 <p align="center"><a href="../README.md">English</a> · <strong>日本語</strong> · <a href="README.zh-TW.md">繁體中文</a></p>
 
 <p align="center"><strong>タスクを再生したら、気が散るサイトとアプリを自動でブロック。</strong></p>
-<p align="center">Super Productivity用プラグイン · Windows 11 · 日本語 / English / 繁體中文</p>
+<p align="center"><a href="https://github.com/super-productivity/super-productivity">Super Productivity</a>用プラグイン · Windows 11</p>
 
 <p align="center">
   <a href="https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/releases">ダウンロード</a> · <a href="#features">機能</a> · <a href="#usage">使い方</a> · <a href="#install">導入</a> ·

@@ -1,11 +1,11 @@
 <p align="center"><img src="assets/icon.svg" width="40" height="40" alt="Block icon"></p>
 
-<h1 align="center">Task-linked Blocker</h1>
+<h1 align="center">Task-linked Blocker for Super Productivity</h1>
 
 <p align="center"><strong>English</strong> · <a href="docs/README.ja.md">日本語</a> · <a href="docs/README.zh-TW.md">繁體中文</a></p>
 
 <p align="center"><strong>Play a task. Automatically block distracting sites and apps.</strong></p>
-<p align="center">A plugin for Super Productivity · Windows 11 · English / 日本語 / 繁體中文</p>
+<p align="center">A plugin for <a href="https://github.com/super-productivity/super-productivity">Super Productivity</a> · Windows 11</p>
 
 <p align="center">
   <a href="https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/releases">Download</a> ·
@@ -13,7 +13,7 @@
   <a href="#privacy">Privacy</a> · <a href="#license">License</a>
 </p>
 
-![Configure blocked sites, allowed sites and apps for each tag](docs/images/settings.jpg)
+![Configure blocked sites, allowed sites and apps for each tag](docs/images/settings-en.png)
 
 <a id="features"></a>
 ## Features

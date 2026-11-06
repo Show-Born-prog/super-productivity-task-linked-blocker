@@ -1,11 +1,11 @@
 <p align="center"><img src="../assets/icon.svg" width="40" height="40" alt="禁止圖示"></p>
 
-<h1 align="center">Task-linked Blocker</h1>
+<h1 align="center">Task-linked Blocker for Super Productivity</h1>
 
 <p align="center"><a href="../README.md">English</a> · <a href="README.ja.md">日本語</a> · <strong>繁體中文</strong></p>
 
 <p align="center"><strong>開始工作，自動封鎖讓你分心的網站與應用程式。</strong></p>
-<p align="center">Super Productivity 外掛 · Windows 11 · English / 日本語 / 繁體中文</p>
+<p align="center"><a href="https://github.com/super-productivity/super-productivity">Super Productivity</a> 外掛 · Windows 11</p>
 
 <p align="center">
   <a href="https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/releases">下載</a> ·
@@ -13,7 +13,7 @@
   <a href="#privacy">隱私</a> · <a href="#license">授權</a>
 </p>
 
-![為各標籤設定封鎖網站、允許網站與應用程式](images/settings.jpg)
+![為各標籤設定封鎖網站、允許網站與應用程式](images/settings-zh-TW.png)
 
 <a id="features"></a>
 ## 功能
