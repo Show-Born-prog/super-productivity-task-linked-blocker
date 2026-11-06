@@ -1,5 +1,5 @@
 import {spawnSync} from 'node:child_process';
-import {readFile,writeFile,cp,readdir,mkdtemp,rename,rm} from 'node:fs/promises';
+import {readFile,cp,readdir,mkdtemp,rename,rm} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
@@ -37,7 +37,6 @@ try {
   if(JSON.stringify((await readdir(contents)).sort())!==JSON.stringify(['HowToInstall.md','site-blocker-extension','task-linked-blocker-plugin.zip']))throw new Error('Unexpected distribution contents');
   await rename(temporaryArchive,archive);
   const digest=createHash('sha256').update(await readFile(archive)).digest('hex');
-  await writeFile(archive+'.sha256',digest+'  '+path.basename(archive)+'\n');
   console.log('Distribution: '+archive+'\nSHA-256: '+digest+'\nNo upload or publication performed.');
 } finally {
   // Only remove the temporary directory created by this invocation, inside dist.

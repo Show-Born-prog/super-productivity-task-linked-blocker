@@ -41,12 +41,12 @@ READMEは用途・基本操作・最小限の導入手順に絞る。ビルド�
 
 一般利用者向けには、[GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)等でビルド済みファイルを配布する案を推奨する。PowerToysはインストーラー、本家は各種ダウンロード導線を用意している。ソースビルドだけを唯一の公開形態とする必要はない。
 
-配布版は初回セットアップで補助の配置先を記録する。本体ZIPに開発PCのパスを含めず、Windows x64用.NET／ASP.NET Coreランタイムを同梱する。ランタイム10.0.11の取得元は公式NuGetの`Microsoft.NETCore.App.Runtime.win-x64`／`Microsoft.AspNetCore.App.Runtime.win-x64`。各パッケージのMIT原文と第三者表記を`site-blocker-extension/bridge/licenses/`へそのまま収録する。ZIP直下はtask-linked-blockerフォルダー1つで、その中はtask-linked-blocker-plugin.zip・site-blocker-extension・HowToInstall.mdだけとし、公開前レビュー用の資料は配布ZIPへ入れない。配布ZIPとSHA-256を検証し、非公開リポジトリのReleaseへ添付する。根拠：[Microsoftの配布方式](https://learn.microsoft.com/en-us/dotnet/core/deploying/)。
+配布版は初回セットアップで補助の配置先を記録する。本体ZIPに開発PCのパスを含めず、Windows x64用.NET／ASP.NET Coreランタイムを同梱する。ランタイム10.0.11の取得元は公式NuGetの`Microsoft.NETCore.App.Runtime.win-x64`／`Microsoft.AspNetCore.App.Runtime.win-x64`。各パッケージのMIT原文と第三者表記を`site-blocker-extension/bridge/licenses/`へそのまま収録する。ZIP直下はtask-linked-blockerフォルダー1つで、その中はtask-linked-blocker-plugin.zip・site-blocker-extension・HowToInstall.mdだけとし、公開前レビュー用の資料は配布ZIPへ入れない。配布ZIPを検証し、非公開リポジトリのReleaseへ添付する。別添の.sha256は生成・添付しない。根拠：[Microsoftの配布方式](https://learn.microsoft.com/en-us/dotnet/core/deploying/)。
 
 ## 公開前に残ること
 
 - 作者がREADMEの内容と独自コードのMIT採用を確認する。
-- 検証済み配布ZIPとSHA-256をReleaseへ添付し、READMEにReleasesへのリンクを置く。非公開リポジトリ内でのRelease確定はユーザーが許可済み。リポジトリのpublic化は別の明示指示を待つ。
+- 検証済み配布ZIPをReleaseへ添付し、READMEにReleasesへのリンクを置く。非公開リポジトリ内でのRelease確定はユーザーが許可済み。リポジトリのpublic化は別の明示指示を待つ。
 - READMEは英語を標準とし、docs/README.ja.md・docs/README.zh-TW.mdへ見出し付近のリンクから切り替える。
 - 公開設定を変える直前に、送信するコミット・ファイル・履歴を再確認する。`.local/`、`.research/`、`.test-tmp/`、`dist/`、個人ルール・認証情報は含めない。
 - 本家の更新に追従する場合は、転用した外観の出典・ライセンスと対応環境を確認する。

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdir,mkdtemp,readFile,writeFile,rename,readdir} from 'node:fs/promises';
 import {createRequire} from 'node:module';
-import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 import {createTransport} from '../../plugin/transport.mjs';
@@ -14,10 +13,10 @@ import {connect} from '../native/ws-client.mjs';
 import {windowsArchive} from '../../scripts/windows-archive.mjs';
 const require=createRequire(import.meta.url),AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
 
-test('distribution checksum and allowlisted archive contain runtime notices and no local settings',async()=>{
+test('distribution has no checksum sidecar and allowlisted archive contains runtime notices and no local settings',async()=>{
  assert.deepEqual((await readdir('dist')).filter(name=>/^package-[A-Za-z0-9]{6}(?:\.zip)?$/.test(name)),[],'packaging must remove its temporary folders and archive');
  const {version}=JSON.parse(await readFile('package.json','utf8')),archive=`dist/task-linked-blocker-${version}-win-x64.zip`;
- const checksum=await readFile(archive+'.sha256','utf8');assert.equal(checksum.split(' ')[0],createHash('sha256').update(await readFile(archive)).digest('hex'));
+ assert.ok(!(await readdir('dist')).includes(path.basename(archive)+'.sha256'),'distribution must not include a checksum sidecar');
  const bytes=await readFile(archive);assert.equal(bytes.readUInt32LE(0),0x04034b50);
  const names=windowsArchive('inspect',archive);
  assert.deepEqual([...new Set(names.map(name=>name.split('/')[0]))].sort(),['task-linked-blocker']);

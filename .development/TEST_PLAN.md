@@ -22,7 +22,7 @@
 - `npm run build`：ZIP、拡張フォルダー、.NET補助機能を生成する。Node 20.15以上と.NET 10 SDKが必要。外部パッケージを取得しない。
 - `npm test`：ドメイン判定、タグと状態制御、実ファイル受け渡し、模擬Chrome API、拡張workerロジック。
 - `npm run test:native`：Windows上の実.NETプロセス・ファイル・WebSocketと、模擬Super Productivity API／模擬Chromeを接続。ローカルポート49231／49232と破棄可能な`.test-tmp/`のみを使う。本体・Chrome実機合格とは区別する。
-- `npm run package`：公式NuGetのランタイムを同梱するWindows x64用配布ZIPとSHA-256を生成。初回取得はネット接続が必要。公開処理は行わない。
+- `npm run package`：公式NuGetのランタイムを同梱するWindows x64用配布ZIPを生成し、別添の`.sha256`を生成しないことを確認。SHA-256は内部確認用の出力だけとする。初回取得はネット接続が必要。公開処理は行わない。
 - `npm run test:package`：配布ZIPの整合性・収録内容と、試験専用フォルダー／ポート49238での実補助を検証する。本体・ChromeのAPIは模擬する。
 - 下表の「実機」はインストール済みSuper Productivityと対象ブラウザで操作し、UIと実アクセスを確認すること。検証専用タスクを使い、日常タスクの時間を変えない。タグは試験用、またはユーザーが明示的に指定した既存タグを使用する。
 
