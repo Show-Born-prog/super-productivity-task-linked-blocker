@@ -15,17 +15,17 @@ const staging=await mkdtemp(path.join(root,'dist/package-'));
 const temporaryArchive=staging+'.zip';
 try {
   const contents=path.join(staging,'task-linked-blocker');
-  await cp(path.join(builtDirectory,'extension'),path.join(contents,'extension'),{recursive:true});
-  await cp(path.join(builtDirectory,'bridge'),path.join(contents,'extension/bridge'),{recursive:true,filter:file=>!file.endsWith('.pdb')});
-  await cp(path.join(builtDirectory,'super-focus-guard.zip'),path.join(contents,'super-focus-guard.zip'));
+  await cp(path.join(builtDirectory,'site-blocker-extension'),path.join(contents,'site-blocker-extension'),{recursive:true});
+  await cp(path.join(builtDirectory,'bridge'),path.join(contents,'site-blocker-extension/bridge'),{recursive:true,filter:file=>!file.endsWith('.pdb')});
+  await cp(path.join(builtDirectory,'task-linked-blocker-plugin.zip'),path.join(contents,'task-linked-blocker-plugin.zip'));
   await cp(path.join(root,'HowToInstall.md'),path.join(contents,'HowToInstall.md'));
-  await cp(path.join(root,'THIRD_PARTY_NOTICES.md'),path.join(contents,'extension/THIRD_PARTY_NOTICES.md'));
+  await cp(path.join(root,'THIRD_PARTY_NOTICES.md'),path.join(contents,'site-blocker-extension/THIRD_PARTY_NOTICES.md'));
   // Self-contained .NET publish carries its runtime LICENSE/ThirdPartyNotices files.
-  const runtimeFiles=await readdir(path.join(contents,'extension/bridge'));
+  const runtimeFiles=await readdir(path.join(contents,'site-blocker-extension/bridge'));
   for(const required of ['coreclr.dll','hostfxr.dll','hostpolicy.dll','System.Private.CoreLib.dll','Microsoft.AspNetCore.dll'])
     if(!runtimeFiles.includes(required))throw new Error('Incomplete self-contained runtime: '+required);
   for(const framework of ['Microsoft.NETCore.App','Microsoft.AspNetCore.App'])for(const notice of ['LICENSE','THIRD-PARTY-NOTICES'])
-    if(!(await readFile(path.join(contents,'extension/bridge/licenses',framework+'-'+notice+'.txt'),'utf8')).trim())throw new Error('Missing runtime license notice');
+    if(!(await readFile(path.join(contents,'site-blocker-extension/bridge/licenses',framework+'-'+notice+'.txt'),'utf8')).trim())throw new Error('Missing runtime license notice');
   const pluginCode=await readFile(path.join(builtDirectory,'plugin/plugin.js'),'utf8');
   const config=JSON.parse(pluginCode.match(/const BUILD_CONFIG = (.*);/)[1]);
   if(config.directory||config.executable||pluginCode.includes(JSON.stringify(root).slice(1,-1)))throw new Error('Distribution contains build-machine paths');
@@ -34,7 +34,7 @@ try {
   const names=windowsArchive('inspect',temporaryArchive);
   const topLevel=[...new Set(names.map(name=>name.split('/')[0]))].sort();
   if(JSON.stringify(topLevel)!==JSON.stringify(['task-linked-blocker']))throw new Error('Unexpected top-level distribution files');
-  if(JSON.stringify((await readdir(contents)).sort())!==JSON.stringify(['HowToInstall.md','extension','super-focus-guard.zip']))throw new Error('Unexpected distribution contents');
+  if(JSON.stringify((await readdir(contents)).sort())!==JSON.stringify(['HowToInstall.md','site-blocker-extension','task-linked-blocker-plugin.zip']))throw new Error('Unexpected distribution contents');
   await rename(temporaryArchive,archive);
   const digest=createHash('sha256').update(await readFile(archive)).digest('hex');
   await writeFile(archive+'.sha256',digest+'  '+path.basename(archive)+'\n');

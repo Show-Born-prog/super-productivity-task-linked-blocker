@@ -1,6 +1,6 @@
 # 公開前の確認
 
-確認日：2026-11-05。GitHubリポジトリは **private**。今回の作業ではpush、公開設定変更、Release作成、ストア申請、本家への申請を行わない。
+確認日：2026-11-06。GitHubリポジトリは **private**。ユーザーの明示指示により、最新変更のpushと確認用の下書きReleaseへの配布ZIP添付を行う。publicへの変更、Releaseの正式公開、ストア申請、本家への申請は行わない。
 
 ## 本家のライセンス・公開方法
 
@@ -41,12 +41,12 @@ READMEは用途・基本操作・最小限の導入手順に絞る。ビルド�
 
 一般利用者向けには、[GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)等でビルド済みファイルを配布する案を推奨する。PowerToysはインストーラー、本家は各種ダウンロード導線を用意している。ソースビルドだけを唯一の公開形態とする必要はない。
 
-配布版は初回セットアップで補助の配置先を記録する。本体ZIPに開発PCのパスを含めず、Windows x64用.NET／ASP.NET Coreランタイムを同梱する。ランタイム10.0.11の取得元は公式NuGetの`Microsoft.NETCore.App.Runtime.win-x64`／`Microsoft.AspNetCore.App.Runtime.win-x64`。各パッケージのMIT原文と第三者表記を`extension/bridge/licenses/`へそのまま収録する。ZIP直下は本体ZIP・extension・HowToInstall.mdだけとし、公開前レビュー用の資料は配布ZIPへ入れない。配布ZIPとSHA-256はローカル生成のみで、Release作成は行わない。根拠：[Microsoftの配布方式](https://learn.microsoft.com/en-us/dotnet/core/deploying/)。
+配布版は初回セットアップで補助の配置先を記録する。本体ZIPに開発PCのパスを含めず、Windows x64用.NET／ASP.NET Coreランタイムを同梱する。ランタイム10.0.11の取得元は公式NuGetの`Microsoft.NETCore.App.Runtime.win-x64`／`Microsoft.AspNetCore.App.Runtime.win-x64`。各パッケージのMIT原文と第三者表記を`site-blocker-extension/bridge/licenses/`へそのまま収録する。ZIP直下はtask-linked-blockerフォルダー1つで、その中はtask-linked-blocker-plugin.zip・site-blocker-extension・HowToInstall.mdだけとし、公開前レビュー用の資料は配布ZIPへ入れない。配布ZIPとSHA-256を検証し、非公開リポジトリの確認用下書きReleaseへ添付する。根拠：[Microsoftの配布方式](https://learn.microsoft.com/en-us/dotnet/core/deploying/)。
 
 ## 公開前に残ること
 
 - 作者がREADMEの内容と独自コードのMIT採用を確認する。
-- 公開時には検証した配布ZIPとSHA-256をReleaseへ置き、READMEから実際の配布ファイルへリンクする。現在はローカルの配布ZIPだけで、GitHubへのアップロードは未許可。
+- 確認用の下書きReleaseへ検証済み配布ZIPとSHA-256を添付し、READMEにReleasesへのリンクを置く。リポジトリのpublic化とReleaseの正式公開は別の明示指示を待つ。
 - 英語／繁体中国語版のREADMEは今回作っていない。UIの3言語対応とは別事項。
 - 公開設定を変える直前に、送信するコミット・ファイル・履歴を再確認する。`.local/`、`.research/`、`.test-tmp/`、`dist/`、個人ルール・認証情報は含めない。
 - 本家の更新に追従する場合は、転用した外観の出典・ライセンスと対応環境を確認する。

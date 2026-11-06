@@ -8,7 +8,7 @@ const require=createRequire(import.meta.url),AsyncFunction=Object.getPrototypeOf
 const id='kjlclkomkeagcfgfjhjlmigdnobdiccp',key='fixture-public-key';
 function fixture({renameFailures=0}={}){
  fs.mkdirSync('.test-tmp',{recursive:true});const home=fs.mkdtempSync(path.resolve('.test-tmp/auto-setup-'));
- const directory=path.join(home,'.task-linked-blocker/runtime'),folder=path.join(home,'展開先 空白/extension');
+ const directory=path.join(home,'.task-linked-blocker/runtime'),folder=path.join(home,'展開先 空白/site-blocker-extension');
  fs.mkdirSync(path.join(folder,'bridge'),{recursive:true});fs.writeFileSync(path.join(folder,'bridge/FocusGuard.Bridge.exe'),'fixture');
  fs.writeFileSync(path.join(folder,'manifest.json'),JSON.stringify({key,manifest_version:3,background:{service_worker:'worker.mjs'}}));
  const prefs=(browser='Google/Chrome',profile='Default',value=folder)=>{

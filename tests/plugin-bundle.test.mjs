@@ -18,15 +18,15 @@ test('packaged settings fit the installed host index limit and native CSS round-
 });
 
 test('renamed distributions retain their IDs and include usable native SVG and Chrome PNG icons',async()=>{
- const name='Task-linked Blocker',plugin=JSON.parse(await readFile('dist/plugin/manifest.json','utf8')),extension=JSON.parse(await readFile('dist/extension/manifest.json','utf8'));
+ const name='Task-linked Blocker',plugin=JSON.parse(await readFile('dist/plugin/manifest.json','utf8')),extension=JSON.parse(await readFile('dist/site-blocker-extension/manifest.json','utf8'));
  assert.equal(plugin.name,name);assert.equal(extension.name,'__MSG_product_name__');assert.equal(plugin.id,'super-focus-guard');
  const id=[...createHash('sha256').update(Buffer.from(extension.key,'base64')).digest().subarray(0,16)].flatMap(n=>[n>>4,n&15]).map(n=>String.fromCharCode(97+n)).join('');assert.equal(id,'kjlclkomkeagcfgfjhjlmigdnobdiccp');
- const zip=await readFile('dist/super-focus-guard.zip'),entries=new Map();let offset=0;
+ const zip=await readFile('dist/task-linked-blocker-plugin.zip'),entries=new Map();let offset=0;
  while(zip.readUInt32LE(offset)===0x04034b50){const size=zip.readUInt32LE(offset+18),length=zip.readUInt16LE(offset+26),extra=zip.readUInt16LE(offset+28),start=offset+30+length+extra;entries.set(zip.subarray(offset+30,offset+30+length).toString(),zip.subarray(start,start+size));offset=start+size;}
  const nativeSvg=entries.get(plugin.icon)?.toString()||'';assert.match(nativeSvg,/<svg/);assert.ok(entries.has('NOTICE.txt'),'the reused icon license must ship with the plugin');
  for(const shape of nativeSvg.match(/<(?:circle|path)\b[^>]*>/g)||[])assert.match(shape,/fill="none"/,'host sidebar sets fill on the SVG root; each outline shape must override inherited fill');
- for(const size of [16,32,48,128]){const icon=await readFile('dist/extension/'+extension.icons[size]);assert.equal(icon.subarray(1,4).toString(),'PNG');assert.equal(icon.readUInt32BE(16),size);assert.equal(icon.readUInt32BE(20),size);assert.equal(extension.action.default_icon[size],extension.icons[size]);}
- for(const file of ['dist/plugin/index.html','dist/extension/popup.html','dist/extension/blocked.html']){const html=await readFile(file,'utf8');assert.ok(html.includes(name));assert.doesNotMatch(html,/集中ガード|__PRODUCT_NAME__/);}
+ for(const size of [16,32,48,128]){const icon=await readFile('dist/site-blocker-extension/'+extension.icons[size]);assert.equal(icon.subarray(1,4).toString(),'PNG');assert.equal(icon.readUInt32BE(16),size);assert.equal(icon.readUInt32BE(20),size);assert.equal(extension.action.default_icon[size],extension.icons[size]);}
+ for(const file of ['dist/plugin/index.html','dist/site-blocker-extension/popup.html','dist/site-blocker-extension/blocked.html']){const html=await readFile(file,'utf8');assert.ok(html.includes(name));assert.doesNotMatch(html,/集中ガード|__PRODUCT_NAME__/);}
 });
 
 test('distribution has no warning UI, notification sender or Windows Desktop runtime dependency',async()=>{
@@ -40,9 +40,9 @@ test('distribution has no warning UI, notification sender or Windows Desktop run
 test('all distribution components retain the complete appearance and icon license notices',async()=>{
  const appearance=await readFile('plugin/native/NOTICE.txt','utf8'),icon=await readFile('assets/NOTICE.txt','utf8');
  const expected=appearance+'\n---\n\n'+icon;
- for(const component of ['plugin','extension','bridge'])assert.equal(await readFile(`dist/${component}/NOTICE.txt`,'utf8'),expected);
+ for(const component of ['plugin','site-blocker-extension','bridge'])assert.equal(await readFile(`dist/${component}/NOTICE.txt`,'utf8'),expected);
  const html=await readFile('dist/plugin/index.html','utf8');assert.ok(html.includes(appearance));
- const zip=await readFile('dist/super-focus-guard.zip');let offset=0,notice;
+ const zip=await readFile('dist/task-linked-blocker-plugin.zip');let offset=0,notice;
  while(zip.readUInt32LE(offset)===0x04034b50){const size=zip.readUInt32LE(offset+18),length=zip.readUInt16LE(offset+26),extra=zip.readUInt16LE(offset+28),start=offset+30+length+extra;
   if(zip.subarray(offset+30,offset+30+length).toString()==='NOTICE.txt')notice=zip.subarray(start,start+size).toString();offset=start+size;}
  assert.equal(notice,expected);

@@ -23,7 +23,7 @@
 
 - 0.10.0のtar作成ZIPはtar／.NET／Expand-Archiveでは開けても、エクスプローラーでは無効なZIPと判定された（ユーザースクリーンショット）。特定ヘッダーの原因は未断定。自動試験だけでエクスプローラー対応済みと報告しない。
 - Windows ZIP APIで作成し、`/`区切りの相対エントリーにする。ZIPをWindows ZIP APIで開いて列挙し、SHA-256、`PK`形式、直下の3項目だけ、ランタイムライセンス保持、個人設定の非同梱を確認。禁止パスや余分な直下ファイルを許すよう条件を弱めない。
-- Windows ZIP APIで実際に別フォルダーへ展開し、直下が`super-focus-guard.zip`・`extension`・`HowToInstall.md`だけであること。内側の本体ZIPも展開し、manifestが現行版であること。
+- Windows ZIP APIで実際に別フォルダーへ展開し、直下が`task-linked-blocker-plugin.zip`・`site-blocker-extension`・`HowToInstall.md`だけであること。内側の本体ZIPも展開し、manifestが現行版であること。
 - `extension/bridge`の実補助から設定移行・既存設定の非上書き、タスク再生に相当する状態で遮断／許可、休憩／停止で解除とプロセス終了、移動後の再セットアップと再開を確認する。前節の3セッション＝3プロセスの条件も維持。
 - 結果：通常／配布ビルド成功、JS70件、配布試験2件合格。ユーザーがエクスプローラーの「すべて展開」で0.10.1の展開成功・3項目を確認。READMEの4手順とHowToInstall.mdのリンクは内蔵ブラウザーで確認。本体／Chromeへの新配置での実導入、アプリ強制終了nativeの再試験は未実施（強制終了のコードは不変）。
 

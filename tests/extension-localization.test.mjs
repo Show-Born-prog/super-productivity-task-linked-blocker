@@ -4,7 +4,7 @@ const localizer=(await readFile('extension/localize.mjs','utf8')).replace(/^expo
 const popup=(await readFile('extension/popup.mjs','utf8')).replace(/^import .*;\r?\n/gm,'');
 const blocked=(await readFile('extension/blocked.mjs','utf8')).replace(/^import .*;\r?\n/gm,'');
 async function render(locale,page,state,fail=false){
-  const catalog=JSON.parse(await readFile(`dist/extension/_locales/${locale==='zh-TW'?'zh_TW':locale==='fr'?'en':locale}/messages.json`,'utf8'));
+  const catalog=JSON.parse(await readFile(`dist/site-blocker-extension/_locales/${locale==='zh-TW'?'zh_TW':locale==='fr'?'en':locale}/messages.json`,'utf8'));
   const messages=JSON.parse(await readFile(`locales/${locale==='fr'?'en':locale}.json`,'utf8'));
   const elements={status:{dataset:{}}};
   const translated=[{dataset:{i18n:'product.name'}},{dataset:{i18n:page==='blocked'?'extension.taskRunning':'product.name'}}];

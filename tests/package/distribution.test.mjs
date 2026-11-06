@@ -22,11 +22,11 @@ test('distribution checksum and allowlisted archive contain runtime notices and 
  const names=windowsArchive('inspect',archive);
  assert.deepEqual([...new Set(names.map(name=>name.split('/')[0]))].sort(),['task-linked-blocker']);
  const contents=names.map(name=>name.slice('task-linked-blocker/'.length));
- assert.deepEqual([...new Set(contents.map(name=>name.split('/')[0]))].sort(),['HowToInstall.md','extension','super-focus-guard.zip']);
- for(const name of contents)assert.ok(/^extension\//.test(name)||['HowToInstall.md','super-focus-guard.zip'].includes(name),'Unexpected archive entry: '+name);
+ assert.deepEqual([...new Set(contents.map(name=>name.split('/')[0]))].sort(),['HowToInstall.md','site-blocker-extension','task-linked-blocker-plugin.zip']);
+ for(const name of contents)assert.ok(/^site-blocker-extension\//.test(name)||['HowToInstall.md','task-linked-blocker-plugin.zip'].includes(name),'Unexpected archive entry: '+name);
  assert.ok(names.every(name=>!/(?:^|\/)(?:\.local|\.research|\.test-tmp|rules\.json|state\.json|installation\.json)(?:\/|$)/.test(name)));
  assert.ok(names.every(name=>!/(?:^|\/)Setup\.cmd$/i.test(name)),'manual setup must not ship');
- for(const framework of ['Microsoft.NETCore.App','Microsoft.AspNetCore.App'])for(const notice of ['LICENSE','THIRD-PARTY-NOTICES'])assert.ok(contents.includes('extension/bridge/licenses/'+framework+'-'+notice+'.txt'));
+ for(const framework of ['Microsoft.NETCore.App','Microsoft.AspNetCore.App'])for(const notice of ['LICENSE','THIRD-PARTY-NOTICES'])assert.ok(contents.includes('site-blocker-extension/bridge/licenses/'+framework+'-'+notice+'.txt'));
 });
 
 for(const extensionFirst of [true,false])test('prebuilt ZIP preserves rules and enforces only during tracking: '+(extensionFirst?'extension installed first':'plugin installed first'),{timeout:60000},async t=>{
@@ -36,13 +36,13 @@ for(const extensionFirst of [true,false])test('prebuilt ZIP preserves rules and 
  windowsArchive('extract',`dist/task-linked-blocker-${version}-win-x64.zip`,folder);
  assert.deepEqual((await readdir(folder)).sort(),['task-linked-blocker']);
  folder=path.join(folder,'task-linked-blocker');
- assert.deepEqual((await readdir(folder)).sort(),['HowToInstall.md','extension','super-focus-guard.zip']);
+ assert.deepEqual((await readdir(folder)).sort(),['HowToInstall.md','site-blocker-extension','task-linked-blocker-plugin.zip']);
  assert.equal(await readFile(path.join(folder,'HowToInstall.md'),'utf8'),await readFile('HowToInstall.md','utf8'),'the distribution includes the current installation instructions');
- windowsArchive('extract',path.join(folder,'super-focus-guard.zip'),path.join(scratch,'plugin-check'));
+ windowsArchive('extract',path.join(folder,'task-linked-blocker-plugin.zip'),path.join(scratch,'plugin-check'));
  assert.equal(JSON.parse(await readFile(path.join(scratch,'plugin-check/manifest.json'),'utf8')).version,version);
- const runtime=JSON.parse(await readFile(path.join(folder,'extension/bridge/FocusGuard.Bridge.runtimeconfig.json'),'utf8'));
+ const runtime=JSON.parse(await readFile(path.join(folder,'site-blocker-extension/bridge/FocusGuard.Bridge.runtimeconfig.json'),'utf8'));
  assert.ok(runtime.runtimeOptions.includedFrameworks.length>=2);assert.equal(runtime.runtimeOptions.frameworks,undefined,'self-contained runtime must not require a globally installed framework');
- const manifest=JSON.parse(await readFile(path.join(folder,'extension/manifest.json'),'utf8'));assert.equal(manifest.version,version);
+ const manifest=JSON.parse(await readFile(path.join(folder,'site-blocker-extension/manifest.json'),'utf8'));assert.equal(manifest.version,version);
  const registration=path.join(scratch,'home/.task-linked-blocker'),directory=path.join(registration,'runtime');
  const rules={version:3,rules:[{tagId:'test',domains:['example.org'],allowSitesEnabled:true,allowedDomains:['reference.example.org'],apps:[{executable:'focusguard.nonexistent.exe'}]}]};
  await mkdir(directory,{recursive:true});await writeFile(path.join(directory,'rules.json'),JSON.stringify(rules));
@@ -51,10 +51,11 @@ for(const extensionFirst of [true,false])test('prebuilt ZIP preserves rules and 
  const stored=await readFile(path.join(directory,'rules.json'),'utf8');
  const profile=path.join(scratch,'home/AppData/Local/Google/Chrome/User Data/Default');await mkdir(profile,{recursive:true});
  const extensionId='kjlclkomkeagcfgfjhjlmigdnobdiccp',port=49238;
- const updateLocation=()=>writeFile(path.join(profile,'Secure Preferences'),JSON.stringify({extensions:{settings:{[extensionId]:{path:path.join(folder,'extension')}}}}));
+ const updateLocation=()=>writeFile(path.join(profile,'Secure Preferences'),JSON.stringify({extensions:{settings:{[extensionId]:{path:path.join(folder,'site-blocker-extension')}}}}));
  if(extensionFirst)await updateLocation();
  const children=[];const testRequire=name=>name==='os'?{homedir:()=>path.join(scratch,'home')}:name==='child_process'?{spawn:(exe,args,options)=>{const child=spawn(exe,args,{...options,env});children.push(child);return child;}}:require(name);
- const api={executeNodeScript:async({script,args})=>{try{return{success:true,result:await new AsyncFunction('args','require',script)(args,testRequire)};}catch{return{success:false};}},getTasks:async()=>[{id:'task',tagIds:['test']}]};
+ // Preserve the host API's error string so real Windows sharing conflicts can retry.
+ const api={executeNodeScript:async({script,args})=>{try{return{success:true,result:await new AsyncFunction('args','require',script)(args,testRequire)};}catch(error){return{success:false,error:error.message};}},getTasks:async()=>[{id:'task',tagIds:['test']}]};
  const transport=createTransport(api,{extensionId,extensionKey:manifest.key,port}),controller=createController({api,transport,sessionId:'package-test'});
  assert.equal(await transport.prepare(true),extensionFirst);
  if(!extensionFirst)await assert.rejects(readFile(path.join(registration,'installation.json'),'utf8'),{code:'ENOENT'});
@@ -74,7 +75,7 @@ for(const extensionFirst of [true,false])test('prebuilt ZIP preserves rules and 
   await updateLocation();
  }
  await start();
- assert.equal(JSON.parse(await readFile(path.join(registration,'installation.json'),'utf8')).executable,path.join(folder,'extension/bridge/FocusGuard.Bridge.exe'));
+ assert.equal(JSON.parse(await readFile(path.join(registration,'installation.json'),'utf8')).executable,path.join(folder,'site-blocker-extension/bridge/FocusGuard.Bridge.exe'));
  let snapshot=await wait('tracking');await enforcer.apply(snapshot);
  assert.equal(chrome.inspect().rules.length,1);assert.equal(chrome.inspect().tabs[0].url,'chrome-extension://test/blocked.html');assert.equal(chrome.inspect().tabs[1].url,'https://reference.example.org/');
  await delay(700);const recordBefore=await readFile(path.join(registration,'installation.json'),'utf8');await transport.prepare(true);assert.equal(await readFile(path.join(registration,'installation.json'),'utf8'),recordBefore,'active helper keeps its registration');
@@ -82,7 +83,7 @@ for(const extensionFirst of [true,false])test('prebuilt ZIP preserves rules and 
  await controller.action({action:{type:'[FocusMode] Start Session'}});await start();await wait('tracking');
  await controller.currentTaskChange({current:null});snapshot=await wait('stopped');await enforcer.apply(snapshot);await exit();assert.equal(chrome.inspect().rules.length,0);
  const moved=path.join(scratch,'移動後 package');await rename(folder,moved);folder=moved;await delay(3100);await updateLocation();assert.equal(await transport.prepare(true),true);
- const record=JSON.parse(await readFile(path.join(registration,'installation.json'),'utf8'));assert.equal(record.executable,path.join(folder,'extension/bridge/FocusGuard.Bridge.exe'));assert.equal(await readFile(path.join(directory,'rules.json'),'utf8'),stored);
+ const record=JSON.parse(await readFile(path.join(registration,'installation.json'),'utf8'));assert.equal(record.executable,path.join(folder,'site-blocker-extension/bridge/FocusGuard.Bridge.exe'));assert.equal(await readFile(path.join(directory,'rules.json'),'utf8'),stored);
  await controller.currentTaskChange({current:{id:'task',tagIds:['test']}});await start();await wait('tracking');
  await controller.currentTaskChange({current:null});await wait('stopped');await exit();
  assert.equal(children.length,3,'each work session has one helper and leaves none after stopping');

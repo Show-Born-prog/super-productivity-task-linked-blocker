@@ -47,13 +47,15 @@
 
 **動作確認環境：Windows 11 / Super Productivity 19.2.0 / Chrome 156**
 
+[Releases](https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/releases)から配布ZIPをダウンロードします。
+
 1. 配布ZIPを右クリック → **すべて展開** → `task-linked-blocker`フォルダーを開く。
-2. Chromeで`chrome://extensions` → **デベロッパー モード** → **パッケージ化されていない拡張機能を読み込む** → `extension`を選択。
-3. Super Productivityの**設定 → プラグイン**で **`super-focus-guard.zip`** を読み込み、有効にし、Node実行を許可。
+2. Chromeで`chrome://extensions` → **デベロッパー モード** → **パッケージ化されていない拡張機能を読み込む** → `site-blocker-extension`を選択。
+3. Super Productivityの**設定 → プラグイン**で **`task-linked-blocker-plugin.zip`** を読み込み、有効にし、Node実行を許可。
 
 本体のNode実行許可は、設定保存とWindowsアプリ遮断用の補助機能の起動に使います。展開フォルダーは利用中そのまま残してください。
 
-展開した`task-linked-blocker`フォルダー内には、`super-focus-guard.zip`・`extension`・[HowToInstall.md](HowToInstall.md)の3項目があります。
+展開した`task-linked-blocker`フォルダー内には、`task-linked-blocker-plugin.zip`・`site-blocker-extension`・[HowToInstall.md](HowToInstall.md)の3項目があります。
 
 <a id="privacy"></a>
 ## プライバシー
