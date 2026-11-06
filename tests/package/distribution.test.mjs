@@ -19,19 +19,24 @@ test('distribution checksum and allowlisted archive contain runtime notices and 
  const checksum=await readFile(archive+'.sha256','utf8');assert.equal(checksum.split(' ')[0],createHash('sha256').update(await readFile(archive)).digest('hex'));
  const bytes=await readFile(archive);assert.equal(bytes.readUInt32LE(0),0x04034b50);
  const names=windowsArchive('inspect',archive);
- assert.deepEqual([...new Set(names.map(name=>name.split('/')[0]))].sort(),['HowToInstall.md','extension','super-focus-guard.zip']);
- for(const name of names)assert.ok(/^extension\//.test(name)||['HowToInstall.md','super-focus-guard.zip'].includes(name),'Unexpected archive entry: '+name);
+ assert.deepEqual([...new Set(names.map(name=>name.split('/')[0]))].sort(),['task-linked-blocker']);
+ const contents=names.map(name=>name.slice('task-linked-blocker/'.length));
+ assert.deepEqual([...new Set(contents.map(name=>name.split('/')[0]))].sort(),['HowToInstall.md','extension','super-focus-guard.zip']);
+ for(const name of contents)assert.ok(/^extension\//.test(name)||['HowToInstall.md','super-focus-guard.zip'].includes(name),'Unexpected archive entry: '+name);
  assert.ok(names.every(name=>!/(?:^|\/)(?:\.local|\.research|\.test-tmp|rules\.json|state\.json|installation\.json)(?:\/|$)/.test(name)));
  assert.ok(names.every(name=>!/(?:^|\/)Setup\.cmd$/i.test(name)),'manual setup must not ship');
- for(const framework of ['Microsoft.NETCore.App','Microsoft.AspNetCore.App'])for(const notice of ['LICENSE','THIRD-PARTY-NOTICES'])assert.ok(names.includes('extension/bridge/licenses/'+framework+'-'+notice+'.txt'));
+ for(const framework of ['Microsoft.NETCore.App','Microsoft.AspNetCore.App'])for(const notice of ['LICENSE','THIRD-PARTY-NOTICES'])assert.ok(contents.includes('extension/bridge/licenses/'+framework+'-'+notice+'.txt'));
 });
 
-test('prebuilt ZIP installs and moves without build paths, preserves rules, and enforces only during tracking',{timeout:60000},async t=>{
+for(const extensionFirst of [true,false])test('prebuilt ZIP preserves rules and enforces only during tracking: '+(extensionFirst?'extension installed first':'plugin installed first'),{timeout:60000},async t=>{
  await mkdir('.test-tmp',{recursive:true});const scratch=await mkdtemp(path.resolve('.test-tmp/distribution-'));
  let folder=path.join(scratch,'初回 空白 中文');await mkdir(folder);
  const {version}=JSON.parse(await readFile('package.json','utf8'));
  windowsArchive('extract',`dist/task-linked-blocker-${version}-win-x64.zip`,folder);
+ assert.deepEqual((await readdir(folder)).sort(),['task-linked-blocker']);
+ folder=path.join(folder,'task-linked-blocker');
  assert.deepEqual((await readdir(folder)).sort(),['HowToInstall.md','extension','super-focus-guard.zip']);
+ assert.equal(await readFile(path.join(folder,'HowToInstall.md'),'utf8'),await readFile('HowToInstall.md','utf8'),'the distribution includes the current installation instructions');
  windowsArchive('extract',path.join(folder,'super-focus-guard.zip'),path.join(scratch,'plugin-check'));
  assert.equal(JSON.parse(await readFile(path.join(scratch,'plugin-check/manifest.json'),'utf8')).version,version);
  const runtime=JSON.parse(await readFile(path.join(folder,'extension/bridge/FocusGuard.Bridge.runtimeconfig.json'),'utf8'));
@@ -46,12 +51,12 @@ test('prebuilt ZIP installs and moves without build paths, preserves rules, and 
  const profile=path.join(scratch,'home/AppData/Local/Google/Chrome/User Data/Default');await mkdir(profile,{recursive:true});
  const extensionId='kjlclkomkeagcfgfjhjlmigdnobdiccp',port=49238;
  const updateLocation=()=>writeFile(path.join(profile,'Secure Preferences'),JSON.stringify({extensions:{settings:{[extensionId]:{path:path.join(folder,'extension')}}}}));
- await updateLocation();
+ if(extensionFirst)await updateLocation();
  const children=[];const testRequire=name=>name==='os'?{homedir:()=>path.join(scratch,'home')}:name==='child_process'?{spawn:(exe,args,options)=>{const child=spawn(exe,args,{...options,env});children.push(child);return child;}}:require(name);
  const api={executeNodeScript:async({script,args})=>{try{return{success:true,result:await new AsyncFunction('args','require',script)(args,testRequire)};}catch{return{success:false};}},getTasks:async()=>[{id:'task',tagIds:['test']}]};
  const transport=createTransport(api,{extensionId,extensionKey:manifest.key,port}),controller=createController({api,transport,sessionId:'package-test'});
- assert.equal(await transport.prepare(true),true);
- assert.equal(JSON.parse(await readFile(path.join(registration,'installation.json'),'utf8')).executable,path.join(folder,'extension/bridge/FocusGuard.Bridge.exe'));
+ assert.equal(await transport.prepare(true),extensionFirst);
+ if(!extensionFirst)await assert.rejects(readFile(path.join(registration,'installation.json'),'utf8'),{code:'ENOENT'});
  assert.equal(await readFile(path.join(directory,'rules.json'),'utf8'),stored,'automatic setup preserves existing rules');
  await controller.initialize();assert.equal(children.length,0,'loading settings must not launch the helper');assert.deepEqual(controller.getState().rules,rules.rules);
  const heartbeat=setInterval(()=>{if(controller.getState().helperRequired)void controller.heartbeat().catch(()=>{});},500);
@@ -61,7 +66,14 @@ test('prebuilt ZIP installs and moves without build paths, preserves rules, and 
  async function start(){let lastError;for(let attempt=0;attempt<50;attempt++){await transport.launch();try{client=await connect(port,extensionId);const opened=client;t.after(()=>opened.close());return;}catch(error){lastError=error;await delay(100);}}assert.fail('self-contained helper did not bind: '+lastError+'; children='+JSON.stringify(children.map(c=>({pid:c.pid,exit:c.exitCode}))));}
  async function exit(){for(let attempt=0;attempt<70&&children.at(-1).exitCode===null;attempt++)await delay(50);assert.equal(children.at(-1).exitCode,0);client.close();}
  const chrome=fakeChrome([{id:1,url:'https://example.org/'},{id:2,url:'https://reference.example.org/'}]),enforcer=createEnforcer(chrome);
- await controller.currentTaskChange({current:{id:'task',tagIds:['test']}});await start();
+ await controller.currentTaskChange({current:{id:'task',tagIds:['test']}});
+ if(!extensionFirst){
+  await assert.rejects(transport.launch(),/error.bridgeConnection/);
+  assert.equal(children.length,0,'no helper starts before the extension is installed');
+  await updateLocation();
+ }
+ await start();
+ assert.equal(JSON.parse(await readFile(path.join(registration,'installation.json'),'utf8')).executable,path.join(folder,'extension/bridge/FocusGuard.Bridge.exe'));
  let snapshot=await wait('tracking');await enforcer.apply(snapshot);
  assert.equal(chrome.inspect().rules.length,1);assert.equal(chrome.inspect().tabs[0].url,'chrome-extension://test/blocked.html');assert.equal(chrome.inspect().tabs[1].url,'https://reference.example.org/');
  await delay(700);const recordBefore=await readFile(path.join(registration,'installation.json'),'utf8');await transport.prepare(true);assert.equal(await readFile(path.join(registration,'installation.json'),'utf8'),recordBefore,'active helper keeps its registration');
