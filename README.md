@@ -12,8 +12,6 @@
 
 ![タグごとにサイト・許可サイト・アプリを登録する設定画面](docs/images/settings.jpg)
 
-設定画面の表示例。
-
 <a id="features"></a>
 ## できること
 
@@ -49,16 +47,14 @@
 
 **動作確認環境：Windows 11 / Super Productivity 19.2.0 / Chrome 156**
 
-配布ZIP（`task-linked-blocker-バージョン-win-x64.zip`）を使い続ける場所へすべて展開し、`Setup.cmd`を一度実行します。**自前ビルドや、Node.js・.NETの別途インストールは不要です。** 続いて以下の2つを読み込みます。
+1. 配布ZIPを右クリック → **すべて展開**。
+2. `extension`フォルダー内の **`Setup.cmd`を一度実行**。
+3. Chromeで`chrome://extensions` → **デベロッパー モード** → **パッケージ化されていない拡張機能を読み込む** → `extension`を選択。
+4. Super Productivityの**設定 → プラグイン**で **`super-focus-guard.zip`** を読み込み、有効化。
 
-| 導入先 | 読み込むもの | 操作 |
-| --- | --- | --- |
-| Chrome | `extension`フォルダー | `chrome://extensions` → デベロッパー モード →「パッケージ化されていない拡張機能を読み込む」 |
-| Super Productivity | `super-focus-guard.zip` | 設定 → プラグイン → ファイルを選択 → 有効化 |
+本体のNode実行許可は、設定保存とWindowsアプリ遮断用の補助機能の起動に使います。展開フォルダーは利用中そのまま残してください。
 
-本体のNode実行許可は、設定の保存とWindows補助機能の起動に使います。導入後は左メニューの「タスク連動ブロッカー」から設定できます。
-
-展開したフォルダーはそのまま残してください。[更新・移動・削除](docs/INSTALL.md)／[ソースからのビルド](docs/BUILD.md)。Chrome拡張は手動導入です。ほかのChromium系ブラウザは、現時点では動作未確認です。
+ZIPの中身は`super-focus-guard.zip`・`extension`・[HowToInstall.md](HowToInstall.md)の3項目です。
 
 <a id="privacy"></a>
 ## プライバシー
@@ -69,8 +65,6 @@
 - ブラウザのタブ情報は、禁止サイトの判定と解除後の復帰に使います。
 - キー入力・画面・クリップボードは取得しません。
 - Windows補助機能は必要な計測中だけ起動し、停止・休憩で終了します。
-
-権限と保存先の詳細は [データと権限](docs/PRIVACY.md)を参照してください。
 
 ## 不具合報告
 

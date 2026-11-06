@@ -35,13 +35,13 @@ MITは著作権・許諾文の保持を条件に、利用・改変・再配布�
 
 他のプロジェクトのスターやCI成功を、本プロジェクトの実績に見せるバッジは付けない。開発経緯・旧版ごとの説明は公開用READMEへ載せない。
 
-READMEは用途・基本操作・導入に絞り、ビルドと権限の詳細だけを別資料へ分ける。サイトの登録例はexample.org等、アプリは架空名を使い、画面例も一致させる。細かな編集操作、検討中に比較した別製品名、長い制限・免責の列挙は載せない。データ損失に直結する強制終了と、確認済みの環境は明示する。
+READMEは用途・基本操作・最小限の導入手順に絞る。ビルド用ページへの案内は削除し、配布する説明書を`HowToInstall.md`に統一する。サイトの登録例はexample.org等、アプリは架空名を使い、画面例も一致させる。細かな編集操作、検討中に比較した別製品名、長い制限・免責の列挙は載せない。データ損失に直結する強制終了と、確認済みの環境は明示する。
 
 ## ビルド不要の配布
 
 一般利用者向けには、[GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)等でビルド済みファイルを配布する案を推奨する。PowerToysはインストーラー、本家は各種ダウンロード導線を用意している。ソースビルドだけを唯一の公開形態とする必要はない。
 
-0.10.0の配布版は初回セットアップで補助の配置先を記録する。本体ZIPに開発PCのパスを含めず、Windows x64用.NET／ASP.NET Coreランタイムを同梱する。ランタイム10.0.11の取得元は公式NuGetの`Microsoft.NETCore.App.Runtime.win-x64`／`Microsoft.AspNetCore.App.Runtime.win-x64`。各パッケージのMIT原文と第三者表記を`bridge/licenses/`へそのまま収録する。配布ZIPとSHA-256はローカル生成のみで、Release作成は行わない。根拠：[Microsoftの配布方式](https://learn.microsoft.com/en-us/dotnet/core/deploying/)。
+配布版は初回セットアップで補助の配置先を記録する。本体ZIPに開発PCのパスを含めず、Windows x64用.NET／ASP.NET Coreランタイムを同梱する。ランタイム10.0.11の取得元は公式NuGetの`Microsoft.NETCore.App.Runtime.win-x64`／`Microsoft.AspNetCore.App.Runtime.win-x64`。各パッケージのMIT原文と第三者表記を`extension/bridge/licenses/`へそのまま収録する。ZIP直下は本体ZIP・extension・HowToInstall.mdだけとし、公開前レビュー用の資料は配布ZIPへ入れない。配布ZIPとSHA-256はローカル生成のみで、Release作成は行わない。根拠：[Microsoftの配布方式](https://learn.microsoft.com/en-us/dotnet/core/deploying/)。
 
 ## 公開前に残ること
 

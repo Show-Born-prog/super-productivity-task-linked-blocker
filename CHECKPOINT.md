@@ -2,6 +2,12 @@
 
 ## 現在の到達点
 
+**0.10.1：エクスプローラーで開ける配布ZIPと3項目構成。** 0.10.0はtar／.NETで読め、Expand-Archiveも成功した一方、ユーザーのエクスプローラーでは空表示・無効なZIPのエラー。前回はその互換性を確認していなかった。個別ヘッダーまでの原因特定はしていないが、tarによる作成をやめ、Windowsの.NET ZIP APIで標準Deflate・相対パス・`/`区切りのエントリーを生成する方式へ変更。0.10.1はユーザーがエクスプローラーの「すべて展開」で成功し、指定の3項目を確認した。
+
+- ZIP直下は`super-focus-guard.zip`・`extension`・`HowToInstall.md`のみ。補助と実行環境は`extension/bridge`、初回設定は`extension/Setup.cmd`、出典・ライセンスもextension配下へ集約。補助の動作・設定保存場所・オンデマンド起動は変更なし。
+- README本文に導入の4手順を記載し、ビルド手順や開発者向け別ページへの案内を削除。旧`docs/BUILD.md`・`docs/INSTALL.md`・`docs/PRIVACY.md`を廃止し、利用に必要な説明はREADMEと3言語の`HowToInstall.md`へ整理。プレビュー47826を更新してHowToInstallへの実遷移を確認。日常設定や本体・Chromeの導入状態は変更していない。
+- 通常／配布ビルド成功、HTML82,883バイト、JS70件・配布試験2件合格。ZIPはWindows ZIP APIで読み取り／展開し、内側の本体ZIPも展開してmanifestを確認。新配置から設定移行／保持・実補助起動・サイト遮断／許可・休憩／停止終了・移動後再開を確認。APIは模擬、本体／Chromeの実導入は未実施。アプリ強制終了のコードは不変でnative3件は0.10.0の結果。エクスプローラー実機だけは上記ユーザー確認で区別する。公開・pushは行わない。
+
 **0.10.0：控えめなChromeポップアップの製品名／16pxアイコンと、ビルド不要のWindows x64配布ZIP。** ポップアップは280×88px、上段12px・太さ400・薄めの名前、下段は既存の接続表示だけ。3言語×4状態を内蔵ブラウザーで確認し、折返し・アイコン欠けなし。実Chromeへの再読み込みは未実施。
 
 - `npm run package`で`dist/task-linked-blocker-0.10.0-win-x64.zip`とSHA-256を生成。配布版の本体ZIPに開発PCのパスを含めず、`Setup.cmd`→補助の`--install`がユーザー単位の置き場所を記録する。ランタイム10.0.11と原ライセンス・第三者表記を同梱するため、利用者のNode／Git／.NET導入・ビルドは不要。設定は`%USERPROFILE%/.task-linked-blocker/runtime/`。開発用ビルドと`.local/runtime`は維持し、日常設定を自動移行しない。取り込みは明示指定のみで既存設定を上書きしない。公開・push・Release作成は未許可のまま。

@@ -27,7 +27,7 @@ Keep these notices when redistributing those materials.
 
 The prebuilt Windows x64 ZIP includes the .NET/ASP.NET Core runtime. Its original
 MIT licenses and third-party notices are copied from the exact runtime packages
-used for publishing into `bridge/licenses/` (separate files for
+used for publishing into `extension/bridge/licenses/` (separate files for
 `Microsoft.NETCore.App` and `Microsoft.AspNetCore.App`). These files must remain
 with the distribution. Node.js is not redistributed; the plugin uses Super
 Productivity's existing Node execution API. The developer build instead uses
