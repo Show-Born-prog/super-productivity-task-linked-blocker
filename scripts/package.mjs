@@ -1,5 +1,5 @@
 import {spawnSync} from 'node:child_process';
-import {readFile,cp,readdir,mkdtemp,rename,rm} from 'node:fs/promises';
+import {readFile,writeFile,cp,readdir,mkdtemp,rename,rm} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
@@ -19,7 +19,13 @@ try {
   await cp(path.join(builtDirectory,'bridge'),path.join(contents,'site-blocker-extension/bridge'),{recursive:true,filter:file=>!file.endsWith('.pdb')});
   await cp(path.join(builtDirectory,'task-linked-blocker-plugin.zip'),path.join(contents,'task-linked-blocker-plugin.zip'));
   await cp(path.join(root,'HowToInstall.md'),path.join(contents,'HowToInstall.md'));
-  await cp(path.join(root,'THIRD_PARTY_NOTICES.md'),path.join(contents,'site-blocker-extension/THIRD_PARTY_NOTICES.md'));
+  const sourceNotices=await readFile(path.join(root,'THIRD_PARTY_NOTICES.md'),'utf8');
+  const bundledNotices=sourceNotices.replace(/\[([^\]]+)\]\(([^)]+)\)/g,(link,label,target)=>{
+    if(/^https?:/.test(target))return link;
+    const bundled=target==='plugin/native/NOTICE.txt'||target==='assets/NOTICE.txt'?'NOTICE.txt':target==='extension/icons/NOTICE.txt'?'icons/NOTICE.txt':null;
+    return '['+label+']('+(bundled||'https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/blob/v'+version+'/'+target)+')';
+  });
+  await writeFile(path.join(contents,'site-blocker-extension/THIRD_PARTY_NOTICES.md'),bundledNotices);
   // Self-contained .NET publish carries its runtime LICENSE/ThirdPartyNotices files.
   const runtimeFiles=await readdir(path.join(contents,'site-blocker-extension/bridge'));
   for(const required of ['coreclr.dll','hostfxr.dll','hostpolicy.dll','System.Private.CoreLib.dll','Microsoft.AspNetCore.dll'])

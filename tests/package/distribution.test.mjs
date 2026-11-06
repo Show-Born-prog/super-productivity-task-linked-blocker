@@ -37,6 +37,13 @@ for(const extensionFirst of [true,false])test('prebuilt ZIP preserves rules and 
  folder=path.join(folder,'task-linked-blocker');
  assert.deepEqual((await readdir(folder)).sort(),['HowToInstall.md','site-blocker-extension','task-linked-blocker-plugin.zip']);
  assert.equal(await readFile(path.join(folder,'HowToInstall.md'),'utf8'),await readFile('HowToInstall.md','utf8'),'the distribution includes the current installation instructions');
+ const noticesFolder=path.join(folder,'site-blocker-extension');
+ const notices=await readFile(path.join(noticesFolder,'THIRD_PARTY_NOTICES.md'),'utf8');
+ for(const [,target] of notices.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)){
+  if(/^https?:/.test(target))continue;
+  assert.ok((await readFile(path.join(noticesFolder,target))).length>0,'bundled license link must exist: '+target);
+ }
+ assert.ok(!notices.includes('](.development/'),'source-only license references must link to the repository');
  windowsArchive('extract',path.join(folder,'task-linked-blocker-plugin.zip'),path.join(scratch,'plugin-check'));
  assert.equal(JSON.parse(await readFile(path.join(scratch,'plugin-check/manifest.json'),'utf8')).version,version);
  const runtime=JSON.parse(await readFile(path.join(folder,'site-blocker-extension/bridge/FocusGuard.Bridge.runtimeconfig.json'),'utf8'));
