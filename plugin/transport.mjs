@@ -7,6 +7,24 @@ const directory = configuredDirectory || path.join(home, '.task-linked-blocker',
 if (configuredHelper) return fs.existsSync(configuredHelper);
 const registration = path.join(directory, '..', 'installation.json');
 const validHelper = value => typeof value === 'string' && path.isAbsolute(value) && /^[a-z]:/i.test(value) && path.basename(value) === 'FocusGuard.Bridge.exe' && fs.existsSync(value) && fs.statSync(value).isFile();
+function helperFromProfile(root, profile) {
+  const preferences = path.join(root, profile, 'Secure Preferences');
+  if (fs.statSync(preferences).size > 32 * 1024 * 1024) return;
+  const folder = JSON.parse(fs.readFileSync(preferences, 'utf8')).extensions?.settings?.[extensionId]?.path;
+  if (typeof folder !== 'string' || !path.isAbsolute(folder) || !/^[a-z]:/i.test(folder)) return;
+  const manifestFile = path.join(folder, 'manifest.json');
+  if (fs.statSync(manifestFile).size > 128 * 1024) return;
+  const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
+  if (!extensionKey || manifest.key !== extensionKey || manifest.manifest_version !== 3 || manifest.background?.service_worker !== 'worker.mjs') return;
+  const executable = path.join(folder, 'bridge', 'FocusGuard.Bridge.exe');
+  if (validHelper(executable)) return executable;
+}
+function registerHelper(executable) {
+  fs.mkdirSync(directory, {recursive:true});
+  const temporary = registration + '.' + process.pid + '.tmp';
+  fs.writeFileSync(temporary, JSON.stringify({version:1, executable}), 'utf8');
+  fs.renameSync(temporary, registration);
+}
 let previous;
 try { const item = JSON.parse(fs.readFileSync(registration, 'utf8')); if (item.version === 1 && validHelper(item.executable)) previous = item.executable; } catch {}
 if (previous && !force) return true;
@@ -25,22 +43,9 @@ for (const browser of browsers) {
   try { profiles = fs.readdirSync(root, {withFileTypes:true}).filter(entry => entry.isDirectory() && /^(Default|Profile \d+)$/.test(entry.name)).slice(0,64); } catch { continue; }
   for (const profile of profiles) {
     try {
-      const preferences = path.join(root, profile.name, 'Secure Preferences');
-      if (fs.statSync(preferences).size > 32 * 1024 * 1024) continue;
-      const folder = JSON.parse(fs.readFileSync(preferences, 'utf8')).extensions?.settings?.[extensionId]?.path;
-      if (typeof folder !== 'string' || !path.isAbsolute(folder) || !/^[a-z]:/i.test(folder)) continue;
-      const manifestFile = path.join(folder, 'manifest.json');
-      if (fs.statSync(manifestFile).size > 128 * 1024) continue;
-      const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
-      if (!extensionKey || manifest.key !== extensionKey || manifest.manifest_version !== 3 || manifest.background?.service_worker !== 'worker.mjs') continue;
-      const executable = path.join(folder, 'bridge', 'FocusGuard.Bridge.exe');
-      if (!validHelper(executable)) continue;
-      if (executable !== previous) {
-        fs.mkdirSync(directory, {recursive:true});
-        const temporary = registration + '.' + process.pid + '.tmp';
-        fs.writeFileSync(temporary, JSON.stringify({version:1, executable}), 'utf8');
-        fs.renameSync(temporary, registration);
-      }
+      const executable = helperFromProfile(root, profile.name);
+      if (!executable) continue;
+      if (executable !== previous) registerHelper(executable);
       return true;
     } catch {}
   }

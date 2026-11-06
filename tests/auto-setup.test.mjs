@@ -6,7 +6,7 @@ import {createRequire} from 'node:module';
 import {SETUP_SCRIPT,LAUNCH_SCRIPT,createTransport} from '../plugin/transport.mjs';
 const require=createRequire(import.meta.url),AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
 const id='kjlclkomkeagcfgfjhjlmigdnobdiccp',key='fixture-public-key';
-function fixture(){
+function fixture({renameFailures=0}={}){
  fs.mkdirSync('.test-tmp',{recursive:true});const home=fs.mkdtempSync(path.resolve('.test-tmp/auto-setup-'));
  const directory=path.join(home,'.task-linked-blocker/runtime'),folder=path.join(home,'展開先 空白/extension');
  fs.mkdirSync(path.join(folder,'bridge'),{recursive:true});fs.writeFileSync(path.join(folder,'bridge/FocusGuard.Bridge.exe'),'fixture');
@@ -15,9 +15,17 @@ function fixture(){
   const target=path.join(home,'AppData/Local',browser,'User Data',profile);fs.mkdirSync(target,{recursive:true});
   fs.writeFileSync(path.join(target,'Secure Preferences'),JSON.stringify({unrelated:'private fixture value',extensions:{settings:{[id]:{path:value}}}}));
  };
- const reads=[];const modules=name=>name==='child_process'?assert.fail('setup must not launch the helper'):name==='os'?{homedir:()=>home}:name==='fs'?new Proxy(fs,{get(target,property){if(property==='readFileSync')return(file,...args)=>{reads.push(file);return fs.readFileSync(file,...args);};return target[property];}}):require(name);
+ const reads=[],writes=[];const modules=name=>name==='child_process'?assert.fail('setup must not launch the helper'):name==='os'?{homedir:()=>home}:name==='fs'?new Proxy(fs,{get(target,property){
+  if(property==='readFileSync')return(file,...args)=>{reads.push(file);return fs.readFileSync(file,...args);};
+  if(property==='writeFileSync'||property==='renameSync')return(...args)=>{
+   writes.push({operation:property,args});
+   if(property==='renameSync'&&renameFailures>0){renameFailures--;throw Object.assign(new Error('fixture rename conflict'),{code:'EPERM'});}
+   return fs[property](...args);
+  };
+  return target[property];
+ }}):require(name);
  const setup=force=>new AsyncFunction('args','require',SETUP_SCRIPT)([directory,id,key,null,!!force],modules);
- return{home,directory,folder,prefs,setup,reads,registration:path.join(directory,'../installation.json')};
+ return{home,directory,folder,prefs,setup,reads,writes,registration:path.join(directory,'../installation.json')};
 }
 test('enable-time setup discovers only this extension and records its helper without starting a process or changing rules',async()=>{
  const f=fixture();f.prefs();fs.mkdirSync(f.directory,{recursive:true});const rules='[{"tagId":"keep","domains":["example.org"]}]';fs.writeFileSync(path.join(f.directory,'rules.json'),rules);
@@ -51,4 +59,26 @@ test('successful initialization adds no setup calls on task starts; a launch fai
  assert.equal(setups,1);assert.equal(launches,2);
  fail=true;await assert.rejects(transport.launch(),/error.bridgeConnection/);
  fail=false;await transport.launch();assert.equal(setups,2);
+});
+
+test('a malformed earlier profile is skipped without changing the registration format or write order',async()=>{
+ const f=fixture();f.prefs();f.prefs('Google/Chrome','Profile 1');
+ fs.writeFileSync(path.join(f.home,'AppData/Local/Google/Chrome/User Data/Default/Secure Preferences'),'{broken');
+ assert.equal(await f.setup(true),true);
+ assert.deepEqual(f.writes.map(w=>w.operation),['writeFileSync','renameSync']);
+ const [write,rename]=f.writes;
+ assert.equal(write.args[0],f.registration+'.'+process.pid+'.tmp');
+ assert.equal(write.args[1],JSON.stringify({version:1,executable:path.join(f.folder,'bridge/FocusGuard.Bridge.exe')}));
+ assert.deepEqual(rename.args,[write.args[0],f.registration]);
+ assert.deepEqual(f.reads.filter(file=>file.endsWith('Secure Preferences')),
+  ['Default','Profile 1'].map(profile=>path.join(f.home,'AppData/Local/Google/Chrome/User Data',profile,'Secure Preferences')));
+});
+
+test('a failed candidate registration falls through to the next profile and preserves existing rules',async()=>{
+ const f=fixture({renameFailures:1});f.prefs();f.prefs('Google/Chrome','Profile 1');
+ fs.mkdirSync(f.directory,{recursive:true});fs.writeFileSync(path.join(f.directory,'rules.json'),'[]');
+ assert.equal(await f.setup(true),true);
+ assert.deepEqual(f.writes.map(w=>w.operation),['writeFileSync','renameSync','writeFileSync','renameSync']);
+ assert.equal(fs.readFileSync(path.join(f.directory,'rules.json'),'utf8'),'[]');
+ assert.equal(JSON.parse(fs.readFileSync(f.registration,'utf8')).executable,path.join(f.folder,'bridge/FocusGuard.Bridge.exe'));
 });
