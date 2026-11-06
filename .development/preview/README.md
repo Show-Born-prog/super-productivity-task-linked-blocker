@@ -9,7 +9,7 @@
 プロジェクトルートで次を実行し、内蔵ブラウザーで `http://127.0.0.1:47823/` を開く。終了はCtrl+C。ローカルPCだけで待受け、外部通信・設定ファイル書込みはしない。
 
 ```powershell
-node preview/server.mjs 'C:\Users\user\AppData\Local\Programs\Super Productivity\resources\app.asar'
+node .development/preview/server.mjs 'C:\Users\user\AppData\Local\Programs\Super Productivity\resources\app.asar'
 ```
 
 右上のボタンで明暗を切替。サイト・アプリの「＋」で入力行、Enterまたは入力欄の外への移動で確定して自動保存、Escapeでキャンセル。項目名クリックで編集、ホバー／キーボードフォーカスで右端に削除ボタン。タッチ環境では削除ボタンを表示する。入力中は途中の一覧を保存せず、キャンセルも保存済みの項目を保持する。通常時の保存案内・注意書きは表示せず、保存できなければエラーだけ表示する。外観はユーザー承認済みで、0.7.0の製品UIへ反映した。この独立プレビューのデータは製品へ移行しない。

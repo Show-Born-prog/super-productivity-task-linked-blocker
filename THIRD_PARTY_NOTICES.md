@@ -9,7 +9,7 @@ Their names identify compatibility and sources; their licenses remain in force.
 | Settings and task-row appearance, adapted HTML structure | [Super Productivity 19.2.0](https://github.com/super-productivity/super-productivity/tree/v19.2.0) | MIT; Copyright (c) 2018 Johannes Millan. Full text: [plugin/native/NOTICE.txt](plugin/native/NOTICE.txt). |
 | Button, input, menu, switch and related component styles | Angular Material bundled with Super Productivity 19.2.0; [Angular Components](https://github.com/angular/components) | MIT; Copyright (c) 2026 Google LLC. Full text from the installed app's `3rdpartylicenses.txt`: [plugin/native/NOTICE.txt](plugin/native/NOTICE.txt). |
 | Product prohibition icon and derived PNGs | [Lucide — ban](https://lucide.dev/icons/ban) | ISC; full upstream license, including its Feather notice: [assets/NOTICE.txt](assets/NOTICE.txt) and [extension/icons/NOTICE.txt](extension/icons/NOTICE.txt). |
-| Unused comparison icons in `preview/identity-icons/` | [Lucide](https://lucide.dev/) and [Tabler Icons](https://tabler.io/icons) | [Lucide license](preview/identity-icons/LICENSE-lucide.txt), [Tabler MIT license](preview/identity-icons/LICENSE-tabler.txt). Comparison assets are not included in the product build. |
+| Unused comparison icons in `.development/preview/identity-icons/` | [Lucide](https://lucide.dev/) and [Tabler Icons](https://tabler.io/icons) | [Lucide license](.development/preview/identity-icons/LICENSE-lucide.txt), [Tabler MIT license](.development/preview/identity-icons/LICENSE-tabler.txt). Comparison assets are not included in the product build. |
 
 ## Changes to reused material
 
@@ -27,7 +27,7 @@ Keep these notices when redistributing those materials.
 
 The prebuilt Windows x64 ZIP includes the .NET/ASP.NET Core runtime. Its original
 MIT licenses and third-party notices are copied from the exact runtime packages
-used for publishing into `extension/bridge/licenses/` (separate files for
+used for publishing into `site-blocker-extension/bridge/licenses/` (separate files for
 `Microsoft.NETCore.App` and `Microsoft.AspNetCore.App`). These files must remain
 with the distribution. Node.js is not redistributed; the plugin uses Super
 Productivity's existing Node execution API. The developer build instead uses
@@ -36,5 +36,5 @@ The README's example registrations are fictional. Reference projects' README
 text, code and logos have not been copied into it.
 
 The license for this project's original code is a separate decision; see the
-[proposed MIT license](docs/LICENSE-MIT.proposed.txt). That proposal does not
+[proposed MIT license](.development/LICENSE-MIT.proposed.txt). That proposal does not
 replace or restrict any upstream license.

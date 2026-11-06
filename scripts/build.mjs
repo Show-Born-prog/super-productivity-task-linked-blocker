@@ -79,7 +79,7 @@ await writeFile(path.join(dist, 'site-blocker-extension/manifest.json'), JSON.st
 const entries = [];
 for (const name of ['manifest.json','plugin.js',...manifest.assets]) entries.push([name, await readFile(path.join(dist, 'plugin', name))]);
 await writeFile(path.join(dist, 'task-linked-blocker-plugin.zip'), createStoredZip(entries));
-const result = spawnSync('dotnet', ['publish','bridge/FocusGuard.Bridge.csproj','--configuration','Release','--output',path.join(dist,'bridge'),'--nologo','--verbosity','quiet',...(portable ? ['--runtime','win-x64','--self-contained','true','--source','https://api.nuget.org/v3/index.json','-p:DebugType=None','-p:DebugSymbols=false'] : ['--configfile','NuGet.Config'])], {
+const result = spawnSync('dotnet', ['publish','bridge/FocusGuard.Bridge.csproj','--configuration','Release','--output',path.join(dist,'bridge'),'--nologo','--verbosity','quiet',...(portable ? ['--runtime','win-x64','--self-contained','true','--source','https://api.nuget.org/v3/index.json','-p:DebugType=None','-p:DebugSymbols=false'] : ['--configfile','.development/NuGet.Config'])], {
   cwd: root, windowsHide: true, encoding: 'utf8', env: { ...process.env, DOTNET_CLI_HOME: path.join(root,'.local/dotnet'), DOTNET_CLI_TELEMETRY_OPTOUT:'1', DOTNET_SKIP_FIRST_TIME_EXPERIENCE:'1', DOTNET_GENERATE_ASPNET_CERTIFICATE:'false' }
 });
 if (result.status !== 0) { console.error(result.stdout, result.stderr); process.exit(1); }

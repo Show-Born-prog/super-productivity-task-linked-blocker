@@ -11,7 +11,7 @@
 | ブランド | [本家Press Kit](https://super-productivity.com/press-kit/)、上記LICENSE・ガイド | 確認した資料の範囲で独立プラグインのGitHub公開に別途承認を必須とする記載は見つからなかった。資料の不在を包括的な商標利用許諾と解釈しない。本家ロゴを製品ロゴに使わず、自作の名称とLucideの禁止マークを使用。非公式・非提携をREADMEに明記する。 |
 | Angular Material | インストール済み19.2.0内 `.tmp/angular-dist/3rdpartylicenses.txt` の `@angular/material`、[公式LICENSE](https://github.com/angular/components/blob/main/LICENSE) | MIT、Copyright (c) 2026 Google LLC.。実際に同梱されたライセンス全文をNOTICEへ収録。本家19.2.0のlockfileでは21.2.12。現在のmainを実機版と同一扱いしない。 |
 | 製品アイコン | [Lucide公式LICENSE](https://github.com/lucide-icons/lucide/blob/main/LICENSE)、[ban SVG](https://github.com/lucide-icons/lucide/blob/main/icons/ban.svg) | ISC。原ライセンスとFeatherに関する付記を維持。SVGのID・fillとPNGへの変換を出典一覧へ記載。 |
-| 比較用アイコン | `preview/identity-icons/`の既存ライセンス | Lucide ISC／Tabler MITを保持。製品配布へは含めない。 |
+| 比較用アイコン | `.development/preview/identity-icons/`の既存ライセンス | Lucide ISC／Tabler MITを保持。製品配布へは含めない。 |
 
 本家サイトのプライバシーポリシーは、本家の処理を説明するものとして区別する。本プラグイン自身の権限・保存先・通信は実装を確認してREADMEへ説明する。名称が似た別事業者のサイトは根拠に使用していない。
 
@@ -47,7 +47,7 @@ READMEは用途・基本操作・最小限の導入手順に絞る。ビルド�
 
 - 作者がREADMEの内容と独自コードのMIT採用を確認する。
 - 確認用の下書きReleaseへ検証済み配布ZIPとSHA-256を添付し、READMEにReleasesへのリンクを置く。リポジトリのpublic化とReleaseの正式公開は別の明示指示を待つ。
-- 英語／繁体中国語版のREADMEは今回作っていない。UIの3言語対応とは別事項。
+- READMEは英語を標準とし、docs/README.ja.md・docs/README.zh-TW.mdへ見出し付近のリンクから切り替える。
 - 公開設定を変える直前に、送信するコミット・ファイル・履歴を再確認する。`.local/`、`.research/`、`.test-tmp/`、`dist/`、個人ルール・認証情報は含めない。
 - 本家の更新に追従する場合は、転用した外観の出典・ライセンスと対応環境を確認する。
 - 公開設定の変更、push、Releaseやストア掲載は、ユーザーの別の明示指示を受けて行う。

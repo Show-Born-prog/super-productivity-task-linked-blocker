@@ -6,7 +6,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 
-const root=fileURLToPath(new URL('../',import.meta.url));
+const root=fileURLToPath(new URL('../../',import.meta.url));
 const asarPath=process.argv[2]||path.join(process.env.LOCALAPPDATA,'Programs/Super Productivity/resources/app.asar');
 const handle=openSync(asarPath,'r'),prefix=Buffer.alloc(16);readSync(handle,prefix,0,16,0);
 const encodedHeader=Buffer.alloc(prefix.readUInt32LE(12));readSync(handle,encodedHeader,0,encodedHeader.length,16);
@@ -28,11 +28,11 @@ for(const [name,entry]of Object.entries(entries)){
 }
 if(!taskCss)throw Error('Installed task styles not found');
 const routes=new Map([
-  ['/identity', ['preview/identity.html','text/html; charset=utf-8']],
-  ...['ban.svg','shield-ban.svg','tag-off.svg','LICENSE-lucide.txt','LICENSE-tabler.txt'].map(name=>['/identity-icons/'+name,['preview/identity-icons/'+name,name.endsWith('.svg')?'image/svg+xml':'text/plain; charset=utf-8']]),
-  ['/', ['preview/index.html','text/html; charset=utf-8']],
-  ['/preview.mjs',['preview/preview.mjs','text/javascript; charset=utf-8']],
-  ['/preview.css',['preview/preview.css','text/css; charset=utf-8']],
+  ['/identity', ['.development/preview/identity.html','text/html; charset=utf-8']],
+  ...['ban.svg','shield-ban.svg','tag-off.svg','LICENSE-lucide.txt','LICENSE-tabler.txt'].map(name=>['/identity-icons/'+name,['.development/preview/identity-icons/'+name,name.endsWith('.svg')?'image/svg+xml':'text/plain; charset=utf-8']]),
+  ['/', ['.development/preview/index.html','text/html; charset=utf-8']],
+  ['/preview.mjs',['.development/preview/preview.mjs','text/javascript; charset=utf-8']],
+  ['/preview.css',['.development/preview/preview.css','text/css; charset=utf-8']],
   ['/native.mjs',['plugin/native.mjs','text/javascript; charset=utf-8']],
   ['/localization.mjs',['plugin/localization.mjs','text/javascript; charset=utf-8']],
   ['/shared/i18n.mjs',['shared/i18n.mjs','text/javascript; charset=utf-8']],

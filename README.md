@@ -1,82 +1,85 @@
-<p align="center"><img src="assets/icon.svg" width="40" height="40" alt="禁止マーク"></p>
+<p align="center"><img src="assets/icon.svg" width="40" height="40" alt="Block icon"></p>
 
 <h1 align="center">Task-linked Blocker</h1>
 
-<p align="center"><strong>タスクを再生したら、気が散るサイトとアプリを自動でブロック。</strong></p>
-<p align="center">Super Productivity用プラグイン · Windows 11 · 日本語 / English / 繁體中文</p>
+<p align="center"><strong>English</strong> · <a href="docs/README.ja.md">日本語</a> · <a href="docs/README.zh-TW.md">繁體中文</a></p>
+
+<p align="center"><strong>Play a task. Automatically block distracting sites and apps.</strong></p>
+<p align="center">A plugin for Super Productivity · Windows 11 · English / 日本語 / 繁體中文</p>
 
 <p align="center">
-  <a href="#features">機能</a> · <a href="#usage">使い方</a> · <a href="#install">導入</a> ·
-  <a href="#privacy">プライバシー</a> · <a href="#license">ライセンス</a>
+  <a href="https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/releases">Download</a> ·
+  <a href="#features">Features</a> · <a href="#usage">Usage</a> · <a href="#install">Install</a> ·
+  <a href="#privacy">Privacy</a> · <a href="#license">License</a>
 </p>
 
-![タグごとにサイト・許可サイト・アプリを登録する設定画面](docs/images/settings.jpg)
+![Configure blocked sites, allowed sites and apps for each tag](docs/images/settings.jpg)
 
 <a id="features"></a>
-## できること
+## Features
 
-**タスクごとに、集中しやすい環境へ。** Super Productivityのタグに、ブロックするサイト・アプリを登録します。
+**A focused environment for each task.** Add sites and apps to block to your existing Super Productivity tags.
 
-- **再生でブロック、停止で解除。** タスクの切替やFocus Modeの休憩にも連動します。
-- **ブラウザはそのまま使える。** 登録したサイトだけが対象。すでに開いているタブにも対応します。
-- **サイトの一部だけ許可できる。** サブドメインを例外として登録できます。
-- **複数タグに対応。** 禁止リストを合算し、許可サイトを優先します。
-- **設定は自動保存。** 本体のテーマと言語に合わせて表示します。
+- **Play to block, stop to unblock.** Rules follow task switches and Focus Mode breaks.
+- **Keep using your browser.** Only registered sites are blocked, including tabs that are already open.
+- **Allow part of a site.** Add subdomains as exceptions.
+- **Use multiple tags.** Blocklists are combined, and allowed sites take priority.
+- **Settings save automatically.** The interface follows Super Productivity's theme and language.
 
-タスク管理や時間計測は、Super Productivityのままです。
+Super Productivity continues to handle tasks and time tracking.
 
 <a id="usage"></a>
-## 使い方
+## Usage
 
-1. **タグを選ぶ。** 本体にあるタグを「タグを追加」から選択。
-2. **ブロックする対象を登録。** 「サイト」「アプリ」の＋から追加。
-3. **タスクを再生。** そのタグに登録したルールが自動で有効になります。
+1. **Choose a tag.** Select an existing tag using **Add tag**.
+2. **Add sites or apps.** Use the **＋** beside **Sites** or **Apps**.
+3. **Play a task.** Rules registered to its tags activate automatically.
 
-| 登録するもの | 入力例 |
+| What to add | Example |
 | --- | --- |
-| サイトのドメイン | `example.org` |
-| アプリの実行ファイル名 | `sample-app.exe` |
+| Site domain | `example.org` |
+| App executable name | `sample-app.exe` |
 
-たとえば `example.org` を禁止し、`reference.example.org` を許可すれば、そのサブドメインは利用できます。許可サイトはタグ右端の **︙** から追加できます。
+For example, block `example.org` and allow `reference.example.org` to keep that subdomain available. Add allowed sites from **︙** beside the tag name.
 
-設定内容は自動で保存されます。<br>
-アプリのブロックは強制終了です。未保存の作業内容は失われます。
+Settings save automatically.<br>
+Blocked apps are force-terminated. Unsaved work will be lost.
 
 <a id="install"></a>
-## 導入
+## Install
 
-**動作確認環境：Windows 11 / Super Productivity 19.2.0 / Chrome 156**
+**Tested on Windows 11 / Super Productivity 19.2.0 / Chrome 156.**
 
-[Releases](https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/releases)から配布ZIPをダウンロードします。
+Download the distribution ZIP from [Releases](https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/releases).
 
-1. 配布ZIPを右クリック → **すべて展開** → `task-linked-blocker`フォルダーを開く。
-2. Chromeで`chrome://extensions` → **デベロッパー モード** → **パッケージ化されていない拡張機能を読み込む** → `site-blocker-extension`を選択。
-3. Super Productivityの**設定 → プラグイン**で **`task-linked-blocker-plugin.zip`** を読み込み、有効にし、Node実行を許可。
+1. Right-click the ZIP → **Extract All** → open the `task-linked-blocker` folder.
+2. Chrome: open `chrome://extensions` → enable **Developer mode** → **Load unpacked** → select `site-blocker-extension`.
+3. Super Productivity: **Settings → Plugins** → load **`task-linked-blocker-plugin.zip`**, enable it, and allow Node execution.
 
-本体のNode実行許可は、設定保存とWindowsアプリ遮断用の補助機能の起動に使います。展開フォルダーは利用中そのまま残してください。
+Node execution is used to save local settings and start the Windows app-blocking helper. Keep the extracted folder while using the plugin.
 
-展開した`task-linked-blocker`フォルダー内には、`task-linked-blocker-plugin.zip`・`site-blocker-extension`・[HowToInstall.md](HowToInstall.md)の3項目があります。
+The `task-linked-blocker` folder contains `task-linked-blocker-plugin.zip`, `site-blocker-extension` and [HowToInstall.md](HowToInstall.md).
 
 <a id="privacy"></a>
-## プライバシー
+## Privacy
 
-**ブロックの処理と設定保存はPC内で完結します。** アカウントやクラウド接続は不要です。
+**Blocking and settings stay on your PC.** No account or cloud connection is required.
 
-- 初回設定では、この拡張の保存場所をブラウザの拡張登録情報から確認します。
-- 設定はローカル保存。開発者への送信やアクセス解析はありません。
-- ブラウザのタブ情報は、禁止サイトの判定と解除後の復帰に使います。
-- キー入力・画面・クリップボードは取得しません。
-- Windows補助機能は必要な計測中だけ起動し、停止・休憩で終了します。
+- Initial setup reads this extension's location from the browser's extension registration data.
+- Settings are stored locally. No data is sent to the developer, and there is no analytics.
+- Browser tab information is used to identify blocked sites and restore tabs after unblocking.
+- Keystrokes, screenshots and clipboard contents are not collected.
+- The Windows helper runs only when needed during tracking and exits when the task stops or a break begins.
 
-## 不具合報告
+## Report an issue
 
-[Issues](https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/issues)へ、使用バージョンと再現手順をお知らせください。設定やスクリーンショットに個人情報が含まれていないか、投稿前に確認してください。
+Include the version and steps to reproduce in [Issues](https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/issues). Check settings and screenshots for personal information before posting.
 
 <a id="license"></a>
-## ライセンスと謝辞
+## License and acknowledgements
 
-独自コードの公開ライセンスは [MIT案](docs/LICENSE-MIT.proposed.txt)を確認中です。
+The license for the project's original code is under review; see the [proposed MIT license](.development/LICENSE-MIT.proposed.txt).
 
-画面の外観にはSuper Productivity・Angular Material（MIT）、アイコンにはLucide（ISC）を使用しています。出典とライセンス全文は [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)にまとめています。
+The interface uses appearance assets from Super Productivity and Angular Material (MIT), with icons from Lucide (ISC). Sources and full license texts are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-本プロジェクトはSuper Productivity公式とは独立したプラグインです。
+This is an independent plugin and is not affiliated with Super Productivity.
