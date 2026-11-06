@@ -78,7 +78,7 @@ Include the version and steps to reproduce in [Issues](https://github.com/Show-B
 <a id="license"></a>
 ## License and acknowledgements
 
-The license for the project's original code is under review; see the [proposed MIT license](.development/LICENSE-MIT.proposed.txt).
+This project's original code is licensed under the [MIT License](LICENSE).
 
 The interface uses appearance assets from Super Productivity and Angular Material (MIT), with icons from Lucide (ISC). Sources and full license texts are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 

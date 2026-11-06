@@ -1,6 +1,7 @@
 {
   "name": "super-focus-guard",
-  "version": "0.11.2",
+  "version": "0.11.3",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {

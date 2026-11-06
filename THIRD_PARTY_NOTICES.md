@@ -35,6 +35,5 @@ the installed .NET runtime.
 The README's example registrations are fictional. Reference projects' README
 text, code and logos have not been copied into it.
 
-The license for this project's original code is a separate decision; see the
-[proposed MIT license](.development/LICENSE-MIT.proposed.txt). That proposal does not
-replace or restrict any upstream license.
+This project's original code is licensed under the [MIT License](LICENSE).
+Third-party materials retain their respective licenses above.

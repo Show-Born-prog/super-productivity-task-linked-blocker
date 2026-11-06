@@ -78,7 +78,7 @@ Node 用於儲存本機設定及啟動 Windows 應用程式封鎖輔助程式。
 <a id="license"></a>
 ## 授權與致謝
 
-本專案原創程式碼的授權仍在確認中，請參閱 [MIT 授權提案](../.development/LICENSE-MIT.proposed.txt)。
+本專案原創程式碼採用 [MIT 授權條款](../LICENSE)。
 
 介面採用 Super Productivity、Angular Material 的外觀素材（MIT），圖示來自 Lucide（ISC）。來源與完整授權條文列於 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。
 

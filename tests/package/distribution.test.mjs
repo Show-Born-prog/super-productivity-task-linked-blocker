@@ -44,7 +44,11 @@ for(const extensionFirst of [true,false])test('prebuilt ZIP preserves rules and 
   assert.ok((await readFile(path.join(noticesFolder,target))).length>0,'bundled license link must exist: '+target);
  }
  assert.ok(!notices.includes('](.development/'),'source-only license references must link to the repository');
+ assert.match(notices,/\[MIT License\]\(LICENSE\.txt\)/);
+ const originalLicense=await readFile('LICENSE','utf8');
+ for(const file of ['LICENSE.txt','bridge/LICENSE.txt'])assert.equal(await readFile(path.join(noticesFolder,file),'utf8'),originalLicense);
  windowsArchive('extract',path.join(folder,'task-linked-blocker-plugin.zip'),path.join(scratch,'plugin-check'));
+ assert.equal(await readFile(path.join(scratch,'plugin-check/LICENSE.txt'),'utf8'),originalLicense);
  assert.equal(JSON.parse(await readFile(path.join(scratch,'plugin-check/manifest.json'),'utf8')).version,version);
  const runtime=JSON.parse(await readFile(path.join(folder,'site-blocker-extension/bridge/FocusGuard.Bridge.runtimeconfig.json'),'utf8'));
  assert.ok(runtime.runtimeOptions.includedFrameworks.length>=2);assert.equal(runtime.runtimeOptions.frameworks,undefined,'self-contained runtime must not require a globally installed framework');

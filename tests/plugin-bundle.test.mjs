@@ -24,6 +24,7 @@ test('renamed distributions retain their IDs and include usable native SVG and C
  const zip=await readFile('dist/task-linked-blocker-plugin.zip'),entries=new Map();let offset=0;
  while(zip.readUInt32LE(offset)===0x04034b50){const size=zip.readUInt32LE(offset+18),length=zip.readUInt16LE(offset+26),extra=zip.readUInt16LE(offset+28),start=offset+30+length+extra;entries.set(zip.subarray(offset+30,offset+30+length).toString(),zip.subarray(start,start+size));offset=start+size;}
  const nativeSvg=entries.get(plugin.icon)?.toString()||'';assert.match(nativeSvg,/<svg/);assert.ok(entries.has('NOTICE.txt'),'the reused icon license must ship with the plugin');
+ assert.equal(entries.get('LICENSE.txt')?.toString(),await readFile('LICENSE','utf8'),'original-code MIT license must ship inside the plugin ZIP');
  for(const shape of nativeSvg.match(/<(?:circle|path)\b[^>]*>/g)||[])assert.match(shape,/fill="none"/,'host sidebar sets fill on the SVG root; each outline shape must override inherited fill');
  for(const size of [16,32,48,128]){const icon=await readFile('dist/site-blocker-extension/'+extension.icons[size]);assert.equal(icon.subarray(1,4).toString(),'PNG');assert.equal(icon.readUInt32BE(16),size);assert.equal(icon.readUInt32BE(20),size);assert.equal(extension.action.default_icon[size],extension.icons[size]);}
  for(const file of ['dist/plugin/index.html','dist/site-blocker-extension/popup.html','dist/site-blocker-extension/blocked.html']){const html=await readFile(file,'utf8');assert.ok(html.includes(name));assert.doesNotMatch(html,/集中ガード|__PRODUCT_NAME__/);}
@@ -38,6 +39,8 @@ test('distribution has no warning UI, notification sender or Windows Desktop run
 });
 
 test('all distribution components retain the complete appearance and icon license notices',async()=>{
+ const original=await readFile('LICENSE','utf8');assert.equal(JSON.parse(await readFile('package.json','utf8')).license,'MIT');
+ for(const component of ['plugin','site-blocker-extension','bridge'])assert.equal(await readFile(`dist/${component}/LICENSE.txt`,'utf8'),original);
  const appearance=await readFile('plugin/native/NOTICE.txt','utf8'),icon=await readFile('assets/NOTICE.txt','utf8');
  const expected=appearance+'\n---\n\n'+icon;
  for(const component of ['plugin','site-blocker-extension','bridge'])assert.equal(await readFile(`dist/${component}/NOTICE.txt`,'utf8'),expected);

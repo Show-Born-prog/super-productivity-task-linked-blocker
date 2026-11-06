@@ -47,15 +47,17 @@ if(indexBytes>100000)throw new Error(`index.html exceeds the host limit: ${index
 await writeFile(path.join(dist, 'plugin/index.html'), html);
 await cp(path.join(root,'assets/icon.svg'),path.join(dist,'plugin/icon.svg'));
 await writeFile(path.join(dist,'plugin/NOTICE.txt'),distributionNotice);
+await cp(path.join(root,'LICENSE'),path.join(dist,'plugin/LICENSE.txt'));
 const manifest = { id: 'super-focus-guard', name: productName, version, manifestVersion: 1, minSupVersion: '19.2.0',
   description: messages.en['product.description'],
   iFrame: true, uiKit: false, hooks: ['currentTaskChange','taskUpdate','action','languageChange'],
-  permissions: ['getTasks','getAllTags','nodeExecution'], author: 'Focus Tools', icon: 'icon.svg', i18n:{languages:['en','ja','zh-tw']}, assets: ['index.html','icon.svg','NOTICE.txt','i18n/en.json','i18n/ja.json','i18n/zh-tw.json'] };
+  permissions: ['getTasks','getAllTags','nodeExecution'], author: 'Focus Tools', icon: 'icon.svg', i18n:{languages:['en','ja','zh-tw']}, assets: ['index.html','icon.svg','NOTICE.txt','LICENSE.txt','i18n/en.json','i18n/ja.json','i18n/zh-tw.json'] };
 await mkdir(path.join(dist,'plugin/i18n'),{recursive:true});
 for(const locale of manifest.i18n.languages){const catalog=messages[locale==='zh-tw'?'zh-TW':locale];await writeFile(path.join(dist,'plugin/i18n',locale+'.json'),JSON.stringify({PLUGIN:{NAME:catalog['product.name'],DESCRIPTION:catalog['product.description']}}));}
 await writeFile(path.join(dist, 'plugin/manifest.json'), JSON.stringify(manifest, null, 2));
 await cp(path.join(root, 'extension'), path.join(dist, 'site-blocker-extension'), { recursive: true, filter: s => !s.endsWith('public-key.txt') });
 await writeFile(path.join(dist, 'site-blocker-extension/NOTICE.txt'),distributionNotice);
+await cp(path.join(root,'LICENSE'),path.join(dist,'site-blocker-extension/LICENSE.txt'));
 await cp(path.join(root, 'shared/policy.mjs'), path.join(dist, 'site-blocker-extension/policy.mjs'));
 await writeFile(path.join(dist, 'site-blocker-extension/enforcer.mjs'), (await readFile(path.join(root,'extension/enforcer.mjs'),'utf8')).replace('../shared/policy.mjs','./policy.mjs'));
 for(const file of ['popup.html','blocked.html'])await writeFile(path.join(dist, 'site-blocker-extension',file),(await readFile(path.join(root,'extension',file),'utf8')).replaceAll('__PRODUCT_NAME__',productName).replace('__BLOCKED_MESSAGE__',messages.en['extension.taskRunning']).replace('__CHECKING__',messages.en['extension.checking']));
@@ -84,6 +86,7 @@ const result = spawnSync('dotnet', ['publish','bridge/FocusGuard.Bridge.csproj',
 });
 if (result.status !== 0) { console.error(result.stdout, result.stderr); process.exit(1); }
 await writeFile(path.join(dist,'bridge/NOTICE.txt'),distributionNotice);
+await cp(path.join(root,'LICENSE'),path.join(dist,'bridge/LICENSE.txt'));
 if(!portable)await cp(path.join(dist,'bridge'),path.join(dist, 'site-blocker-extension/bridge'),{recursive:true,filter:file=>!file.endsWith('.pdb')});
 if(portable){
   const runtime=JSON.parse(await readFile(path.join(dist,'bridge/FocusGuard.Bridge.runtimeconfig.json'),'utf8'));

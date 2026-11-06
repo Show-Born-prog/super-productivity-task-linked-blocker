@@ -77,7 +77,7 @@
 <a id="license"></a>
 ## ライセンスと謝辞
 
-独自コードの公開ライセンスは [MIT案](../.development/LICENSE-MIT.proposed.txt)を確認中です。
+独自コードは [MITライセンス](../LICENSE)を採用しています。
 
 画面の外観にはSuper Productivity・Angular Material（MIT）、アイコンにはLucide（ISC）を使用しています。出典とライセンス全文は [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)にまとめています。
 

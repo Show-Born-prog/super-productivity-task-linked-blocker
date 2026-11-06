@@ -22,7 +22,7 @@ try {
   const sourceNotices=await readFile(path.join(root,'THIRD_PARTY_NOTICES.md'),'utf8');
   const bundledNotices=sourceNotices.replace(/\[([^\]]+)\]\(([^)]+)\)/g,(link,label,target)=>{
     if(/^https?:/.test(target))return link;
-    const bundled=target==='plugin/native/NOTICE.txt'||target==='assets/NOTICE.txt'?'NOTICE.txt':target==='extension/icons/NOTICE.txt'?'icons/NOTICE.txt':null;
+    const bundled=target==='LICENSE'?'LICENSE.txt':target==='plugin/native/NOTICE.txt'||target==='assets/NOTICE.txt'?'NOTICE.txt':target==='extension/icons/NOTICE.txt'?'icons/NOTICE.txt':null;
     return '['+label+']('+(bundled||'https://github.com/Show-Born-prog/super-productivity-task-linked-blocker/blob/v'+version+'/'+target)+')';
   });
   await writeFile(path.join(contents,'site-blocker-extension/THIRD_PARTY_NOTICES.md'),bundledNotices);
